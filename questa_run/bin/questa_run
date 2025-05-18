@@ -1,0 +1,241 @@
+#!/usr/bin/env python3
+"""
+This script is made to execute Questa Lint and CDC/RDC jobs using LSF.
+Examples:
+questa_run cdc -f pcl/design/units/Pcl/sim/sanitychk_rtl/vt_src_open-full_pkg.f pcl/design/units/Pcl/sim/sanitychk_rtl/ip_stub_src_pkg.f -t VtPcl -opt questa_run/templates/tool_opts -pf questa_run/templates/pref.do -do questa_run/templates/dofile.do -o questa_ws_trial -I
+
+questa_run cdc -t VtPcl -o questa_work_hier -g
+"""
+
+import os
+import shutil
+import sys
+import argparse
+import re
+import importlib.util
+import subprocess
+from pathlib import Path
+# get path for modules
+print("Running Questa_run from: ",os.path.abspath(os.path.dirname(__file__))+"/../")
+sys.path.append(os.path.abspath(os.path.dirname(__file__))+"/../")
+from lint import LintTool
+from cdc import CdcTool
+from rdc import RdcTool
+from VClint import VC_SpyglassLintTool
+from SGcdc import SpyglassCDCPlugin
+from common_py_func import tree
+from logger import Logger
+from generate_txt import generate_readme_console
+
+
+class internal_component(argparse.Action):
+    def __init__(self, option_strings, dest, nargs=None, **kwargs):
+        if nargs is not None:
+            raise ValueError("nargs not allowed")
+        super().__init__(option_strings, dest, **kwargs)
+    def __call__(self, parser, namespace, values, option_string=None):
+        print('%r %r %r' % (namespace, values, option_string))
+        setattr(namespace, self.dest, values)
+        
+class TopHelp(argparse.HelpFormatter):
+    def _format_usage(self, *args, **kwargs):
+        return ""  # Remove usage line
+    
+    def add_arguments(self, actions):
+        pass  # Skip adding arguments to help
+    
+    def format_help(self):
+        # Only return your custom help text
+        return generate_readme_console()
+    
+class CustomHelpFormatter(argparse.HelpFormatter):
+    def __init__(self, prog, tool=None):
+        super().__init__(prog)
+        self.tool = tool  # Pass the tool instance to the formatter
+    
+    def _format_usage(self, *args, **kwargs):
+        return ""  # Suppress default usage line
+    
+    def add_arguments(self, actions):
+        pass  # Skip adding arguments to help
+    
+    def format_help(self):
+        if self.tool:
+            return self.tool.generate_parser_help()
+        return "No help text available."  # Fallback
+    
+# submit_lsf_job
+def run_lsf_interactive_advanced(logger,bsub_cmd="bsub",exec_path="questa_run",interactive=False):
+    log_file = f"{exec_path}.log"
+    if interactive:
+        cmd = f"{bsub_cmd} -I {exec_path}"
+    else:
+        cmd = f"{bsub_cmd} {exec_path}"
+    
+    try:
+        with open(log_file, 'w') as log:
+            process = subprocess.Popen(
+                cmd,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1
+            )
+            
+            # Live stream output to both console and log
+            for line in process.stdout:
+                sys.stdout.write(line)  # Console
+                log.write(line)         # Log file
+                sys.stdout.flush()      # Immediate display
+                
+            process.wait()
+            
+            if process.returncode != 0:
+                logger.process_info('======================================================================================================================================================')
+                logger.error(f"\u274C Job failed (Error Code: {process.returncode})")
+                # Check for common LSF errors
+                if "TERM_MEMLIMIT" in line:
+                    logger.error("\u2192 Hit memory limit!")
+                return False
+            return True
+            
+    except Exception as e:
+        logger.critical(f"\u274C Execution failed: {str(e)}")
+        return False
+
+# ======================== Main CLI ========================
+def main():
+    # Custom error handling
+
+    if len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help' or sys.argv[1] == "-help":  # No arguments provided
+        print(generate_readme_console())   
+        print("\nError: Please specify a tool to run. {lint | cdc | rdc | VClint}")
+        print("Example: questa_run lint --options")
+        sys.exit(1)
+
+    # Top-level parser
+    parser = argparse.ArgumentParser(
+    formatter_class=TopHelp,
+    description="\nQuestarun script - Static Code Analysis for SystemVerilog/VHDL",
+    add_help=False,
+    usage=argparse.SUPPRESS,
+    argument_default=argparse.SUPPRESS
+    )
+    
+     # Add custom help option
+    parser.add_argument(
+        '-h', '--help', 
+        action='help',
+        default=argparse.SUPPRESS,
+        help=argparse.SUPPRESS)
+    
+    subparsers = parser.add_subparsers(dest="subparser_name", help="Select a tool")
+    tools = {
+    "lint": LintTool(logger),
+    "cdc": CdcTool(logger),
+    "rdc": RdcTool(logger),
+    "vclint": VC_SpyglassLintTool(logger),
+    "sgcdc": SpyglassCDCPlugin(logger)
+    # Add more tools here
+    }
+    
+    for name, tool in tools.items():
+        subparser = subparsers.add_parser(name, parents=[tool.parser], add_help=False,formatter_class=lambda prog, tool=tool: CustomHelpFormatter(prog, tool=tool))
+        subparser.set_defaults(func=tool.run,tool_name=name)  # Top-level dispatch still works
+        
+    # turn all the opts.<NameSpace> into absolute paths
+    opts = parser.parse_args()
+    if opts.verbose:
+        logger.set_level("DEBUG")
+        
+        
+    logger.info("Tool Selected: "+ opts.tool_name)
+    selected_tool = tools[opts.subparser_name]  # Returns LintTool, CdcTool, or RdcTool
+
+    logger.disable_console() # disable console
+    # execute
+    if opts.gui:
+        logger.info("GUI Mode Selected.")
+        exec_file=selected_tool.gui_mode(opts)
+    else:
+        logger.info(f'Executing function base on arguments provided.')
+        exec_file=opts.func(opts)
+    
+    if exec_file and not opts.skip_exec: # if exec file is not None
+        logger.underline('Setup exec file')
+        logger.info('Begin setting up exec file')
+        logger.debug(f"chmod {exec_file} to 755.")
+        os.chmod(exec_file, 0o755)
+        exec_abspath=os.path.abspath(exec_file)
+        logger.debug(f"generate abspath for: {exec_file}, which is {exec_abspath}")
+        logger.info('Finished setting up exec file.')
+        logger.line()
+        logger.enable_console()
+        logger.underline('Job Submission')
+        logger.info('Submitting job using bsub')
+        if opts.tool_name == "sgcdc":
+            bsub = "bsub -q rh8 " + selected_tool.opts_dict.get("bsub", '')
+        else:
+            bsub = "bsub " + selected_tool.opts_dict.get("bsub", '')
+        if opts.gui:
+            #TODO add a -R "mem=<number>" in the future (currently not available)
+            if not opts.tool_name == "sgcdc":
+                bsub += '-q "interactive"'
+            logger.info(f'Job Submitted for GUI: {bsub} -I -XF {exec_abspath}')
+            os.system(f'{bsub} -I -XF {exec_abspath}')
+            logger.info(f'Check {exec_abspath}.log for log info from the tool.')
+        else:
+            # if opts.febuild:
+            #     os.system(exec_abspath)
+            # else:
+            logger.info(f"Job Submitted for Run: {bsub} -I {exec_abspath} |& tee {exec_abspath}.log")
+            run_lsf_interactive_advanced(bsub_cmd=bsub,exec_path=exec_abspath,logger=logger,interactive=opts.interactive)
+            logger.line()
+
+            logger.line(symbol='=',length=200,newline=True)
+            logger.underline('Log Files:')
+            logger.process_info(f'Check {opts.workdir}/questa_run.log for log info from questa_run.')
+            logger.process_info(f'Check {exec_abspath}.log for log info from the tool.')
+            logger.line(symbol='=',length=200,newline=True)
+            logger.disable_console()
+            logger.line(symbol='=',length=200,newline=True)
+            logger.underline("work directory Tree:")
+            logger.space()
+            skip_dirs = {"oc_libVlog", "__pycache__","qcache"}
+            tree(is_root=True, root_dir=os.path.abspath(f'''{opts.workdir}/../../'''),max_depth = 4, current_depth=0,collapse_dirs=skip_dirs,skip_hidden=True,skip_underscore=True,show_files=True,logger=logger)
+            logger.line(symbol='=',length=200,newline=True)
+            logger.enable_console()
+            logger.line(symbol='=',length=200,newline=True)
+            logger.underline("Some key items:")
+            logger.info(f"{opts.tool_name} Script: {opts.workdir}/compile_{opts.tool_name}")
+            logger.info(f"{opts.tool_name} logfile: {opts.workdir}/compile_{opts.tool_name}.log")
+            if opts.tool_name != "vclint":
+                logger.info(f'{opts.tool_name} reports: {opts.workdir}/Results/report/')
+                logger.info(f"{opts.tool_name} Database File at: {opts.workdir}/Results/{opts.tool_name}.db")
+                logger.line(symbol='=',length=200,newline=True)
+            logger.underline("To View Results in GUI:")
+            if opts.febuild:
+                logger.process_info(f"questa_run {opts.tool_name} -t {opts.top} --febuild --gui -o {os.path.abspath(f'''{opts.workdir}''')}")
+            else:
+                logger.process_info(f"questa_run {opts.tool_name} -t {opts.top} --gui -o {os.path.abspath(f'''{opts.workdir}/../../''')}")
+            if opts.tool_name != "vclint" and opts.tool_name != "sgcdc":
+                logger.process_info(" OR WITH")
+                logger.process_info(f"questa_run {opts.tool_name} -t {opts.top} --gui -db {opts.workdir}/Results/{opts.tool_name}.db")
+                logger.line(symbol='=',length=150,newline=True)
+            logger.disable_console()
+            #logger.close()
+          
+if __name__ == '__main__':
+    os.system('rm -rf questa_run.log')
+    logger = Logger(
+    log_file=Path(f"questa_run.log"),
+    name="Questa Run Logger",
+    level="INFO",
+    max_files=5,
+    max_bytes=10*1024*1024,  # 10MB
+    json=False,
+    simple=True,
+    console = True
+    ) 
+    main()
