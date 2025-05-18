@@ -1,0 +1,582 @@
+// ----------------------------------------------------------------------------
+// Intel SpyglassCDC Methodology
+// created from SpyGlass GuideWare2.0 Goal File
+// 
+// Goal Name :  cdc_verify_struct
+// Version: 1.0
+// 
+// Revision History:
+// Ver	     Date           SG Ver		Comments 
+// 1.0       21-Oct-2016    L2016.06-SP1-1	Initial Version
+//
+// Copyright Intel Corp, 2016.  All rights reserved.
+// ----------------------------------------------------------------------------
+
+=template+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+cdc_verify_struct mixed
+*
+Clock Domain Crossing Verification
+*
+This step is used to verify all aspects of clock domain crossings; main CDC
+issues covered are:
+  1- Metastability
+  2- Ensure all synchronous resets follow convention specified by reset_sync_style
+     constraint
+ In this step any change that may affect the setup will also be monitored and 
+any setup issues (e.g. missing clocks definition) will be reported.
+=cut+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+//------------------------------------------------
+// Policy Registration
+//------------------------------------------------
+
+-policy=clock-reset
+
+//------------------------------------------------
+// General Setup commands
+//------------------------------------------------
+
+-mixed //allow mixed language
+-enable_const_prop_thru_seq //allow to propagate beyond the sequential elements
+
+//------------------------------------------------
+// Inherited Parameter Setting
+//------------------------------------------------
+
+//from cdc_setup_check
+-enable_debug_data=yes //Enables annotation of debug information, such as clock, reset, quasi_static signals, and domain information on nets in the schematic
+-hier_wild_card=no //Specifies the format of specifying hierarchies by using wildcard expressions in all the constraints used by the SpyGlass CDC solution
+-strict_sync_check=yes //Allows combinational logic between the source and destination flip-flops
+-filter_named_clocks=NO_DEFAULT_LIST //needed to infer visa clocks
+-handle_combo_arc=yes //handling multiple arcs in liberty file (.lib)
+-ignore_latches=no //handle latches
+-enable_multiflop_sync=no //disable use of back-to-back flops as a synchronizer
+-disable_seq_clock_prop=no //allow indirect clocks to be propagated, if it goes to a seq clock pin
+-enable_generated_clocks=no //disable SDC mode for generated clocks
+-clock_reduce_pessimism=mux_sel_derived,check_enable_for_glitch,stop_derived_at_random_logic,ignore_same_domain,strict_infer_gen_clocks,enable_at_detected_cgc_latch  //options are: mux_sel_derived=filter out indirect clocks on select; check_enable_for_glitch=enable gated clock checks; stop_derived_at_random_logic=stop clock propagation of indirect clock if multiple meet at combo, and show Clock_info03a violation; ignore_same_domain=at a clock mux, propagate if domains are the same; strict_infer_gen_clocks=propagate indirect clocks if output goes to clock pin of subsequent seqs; 
+//specify clock_gate_cell for RCBs, and Clock-Dividers, pending enhancement
+//-clock_gate_cell="ctech_lib_rcb_lcp*,ctech_lib_clk_and_en*,cnan02_func,ctech_lib_clk_nand_en,ctech_lib_clk_flop,ctech_lib_clk_gate_and,clb0a2_func,ctech_lib_clk_gate_te_rst_ss,ctech_lib_clk_dop_div3,ip74xsr_ssasubarray,ip74xvdmshared_postflop,ip74xpllshared_plldcatopana,ip74xpllshared_pllpdivglfree,ctech_lib_rcb_and,ctech_lib_clk_ffb,ctech_lib_gate_te*,ctech_lib_clk_gate_te,ctech_lib_clk_gate_te_rstb"
+-ignore_bus_resets=no //enable handling of resets that are busses, for setup_port01
+-prefer_abstract_port=seq //Ignore abstract_module constraint at top present at block sgdc in hierarchical flow 
+                          //Propagate source and destination qualifiers through sequentials in abstracts. Refer HSD:2207997621 for more detail
+-report_abstract_module_coverage=yes //helps cover abstract gaps (where some outputs are not specified in the abstract), and is reported under Setup_blackbox01 rule
+
+//Enable port inferencing
+-use_inferred_abstract_port=yes //enable the feature
+-report_inferred_domains=yes //report in CDC-detailed-report and CKSGDCinfo reports
+-enable_virtual_diff_in_auto=yes //BBox inputs with auto, but no clock gets VCLK
+-enable_async_reset_prop_thru_seq=no //Reset propagation through constraints and D pin
+//async reset throgugh sync change from yes to no. SGCDC WG 2021WW49. Ref minutes for details or HSD related to 4.00.01 methodolody release
+
+-prop_clock_thru_quasi_static=yes //allow clocks to propagate thru quasi_static
+
+//-check_combo_no_on_vclk_ports=yes //parameter to change the severity of the Setup_port01 Status partially constrained (suggested add -combo no, -combo_ifn in abstract_port constraint) to an Error
+-check_combo_no_on_vclk_ports=no //This parameter is not needed. SG is inferring combo correctly so unnecessary combo addition required by user
+
+//Synchronizer Cells
+//FIXME:What is the SDG methodology for ctech integration? Should only backend cells be visible/used?
+//-synchronize_cells="e??fm?20*,e??fm?30*,ec0fmn100a??n08x5,b15fm?20???1n04x5,b15fm?30???1n04x5,d04hgn20?d0?0,d04h?y23?d0?0,d04h?y2c?d0?0,g?mfm?20???1d03x5,g?mfm?30???1d03x5,g1mfmn100a??n09x5,\
+//                    g1ifm?20????d04x5,g1ifm?30????d04x5,h0mfm?20???1d04x5,h0mfm?30???1d04x5,i0?fm?20???1d0?x5,i0?fm?30???1d0?x5,\
+//                    HDBULT08_SYNC2MSFQ_Y4_2,HDBULT08_SYNC2MSFQ_Y4_4,HDBULT08_SYNC2SBMSFQ_Y4_2,HDBULT08_SYNC2SBMSFQ_Y4_4,HDBULT08_SYNC2RBMSFQ_Y4_2,HDBULT08_SYNC2RBMSFQ_Y4_4,\
+//                    HDBLVT08_SYNC3MSFQ_Y4_2,HDBLVT08_SYNC3MSFQ_Y4_4,HDBLVT08_SYNC3RBMSFQ_Y5_2,HDBLVT08_SYNC3RBMSFQ_Y5_4,HDBLVT08_SYNC3SBMSFQ_Y5_2,HDBLVT08_SYNC3SBMSFQ_Y5_4,\
+//                    HDBULT08_SYNC3MSFQ_Y4_2,HDBULT08_SYNC3MSFQ_Y4_4,HDBULT08_SYNC3RBMSFQ_Y5_2,HDBULT08_SYNC3RBMSFQ_Y5_4,HDBULT08_SYNC3SBMSFQ_Y5_2,HDBULT08_SYNC3SBMSFQ_Y5_4,\
+//                    SDFFYRPQ?D_X?N_A9T?_C1*,SDFFYSQ?D_X?N_A9T?_C1*,SDFFYQ?D_X?N_A9T?_C1*,HRY2?_X?N_A9T?_C1*,SDFSYNC2*QD1BWP*0H8P*VT,SDFSYNC3*QD1BWP*0H8P*VT,SDFSYNC2*D1BWP169H3P??CPD*V*,SDFSYNC3*D1BWP169H3P??CPD*V*,H?B*06_SYNC2*MSFQ*_CAQ*_?,H?B*06_SYNC3*MSFQ*_CAQ*_?"
+//
+//-synchronize_data_cells="e??fm?20*,e??fm?30*,ec0fmn100a??n08x5,b15fm?20???1n04x5,b15fm?30???1n04x5,d04hgn20?d0?0,d04h?y23?d0?0,d04h?y2c?d0?0,g?mfm?20???1d03x5,g?mfm?30???1d03x5,g1mfmn100a??n09x5,\
+//                    g1ifm?20????d04x5,g1ifm?30????d04x5,h0mfm?20???1d04x5,h0mfm?30???1d04x5,i0?fm?20???1d0?x5,i0?fm?30???1d0?x5,\
+//                    HDBULT08_SYNC2MSFQ_Y4_2,HDBULT08_SYNC2MSFQ_Y4_4,HDBULT08_SYNC2SBMSFQ_Y4_2,HDBULT08_SYNC2SBMSFQ_Y4_4,HDBULT08_SYNC2RBMSFQ_Y4_2,HDBULT08_SYNC2RBMSFQ_Y4_4,\
+//                    HDBLVT08_SYNC3MSFQ_Y4_2,HDBLVT08_SYNC3MSFQ_Y4_4,HDBLVT08_SYNC3RBMSFQ_Y5_2,HDBLVT08_SYNC3RBMSFQ_Y5_4,HDBLVT08_SYNC3SBMSFQ_Y5_2,HDBLVT08_SYNC3SBMSFQ_Y5_4,\
+//                    HDBULT08_SYNC3MSFQ_Y4_2,HDBULT08_SYNC3MSFQ_Y4_4,HDBULT08_SYNC3RBMSFQ_Y5_2,HDBULT08_SYNC3RBMSFQ_Y5_4,HDBULT08_SYNC3SBMSFQ_Y5_2,HDBULT08_SYNC3SBMSFQ_Y5_4,\
+//                    SDFFYRPQ?D_X?N_A9T?_C1*,SDFFYSQ?D_X?N_A9T?_C1*,SDFFYQ?D_X?N_A9T?_C1*,HRY2?_X?N_A9T?_C1*,SDFSYNC2*QD1BWP*0H8P*VT,SDFSYNC3*QD1BWP*0H8P*VT,SDFSYNC2*D1BWP169H3P??CPD*V*,SDFSYNC3*D1BWP169H3P??CPD*V*,H?B*06_SYNC2*MSFQ*_CAQ*_?,H?B*06_SYNC3*MSFQ*_CAQ*_?"
+//
+//-reset_synchronize_cells="e??fm?20*,e??fm?30*,ec0fmn100a??n08x5,b15fm?20???1n04x5,b15fm?30???1n04x5,d04hgn20?d0?0,d04h?y23?d0?0,d04h?y2c?d0?0,g?mfm?20???1d03x5,g?mfm?30???1d03x5,g1mfmn100a??n09x5,\
+//                    g1ifm?20????d04x5,g1ifm?30????d04x5,h0mfm?20???1d04x5,h0mfm?30???1d04x5,i0?fm?20???1d0?x5,i0?fm?30???1d0?x5,\
+//                    HDBULT08_SYNC2MSFQ_Y4_2,HDBULT08_SYNC2MSFQ_Y4_4,HDBULT08_SYNC2SBMSFQ_Y4_2,HDBULT08_SYNC2SBMSFQ_Y4_4,HDBULT08_SYNC2RBMSFQ_Y4_2,HDBULT08_SYNC2RBMSFQ_Y4_4,\
+//                    HDBLVT08_SYNC3MSFQ_Y4_2,HDBLVT08_SYNC3MSFQ_Y4_4,HDBLVT08_SYNC3RBMSFQ_Y5_2,HDBLVT08_SYNC3RBMSFQ_Y5_4,HDBLVT08_SYNC3SBMSFQ_Y5_2,HDBLVT08_SYNC3SBMSFQ_Y5_4,\
+//                    HDBULT08_SYNC3MSFQ_Y4_2,HDBULT08_SYNC3MSFQ_Y4_4,HDBULT08_SYNC3RBMSFQ_Y5_2,HDBULT08_SYNC3RBMSFQ_Y5_4,HDBULT08_SYNC3SBMSFQ_Y5_2,HDBULT08_SYNC3SBMSFQ_Y5_4,\
+//                    SDFFYRPQ?D_X?N_A9T?_C1*,SDFFYSQ?D_X?N_A9T?_C1*,SDFFYQ?D_X?N_A9T?_C1*,HRY2?_X?N_A9T?_C1*,SDFSYNC2*QD1BWP*0H8P*VT,SDFSYNC3*QD1BWP*0H8P*VT,SDFSYNC2*D1BWP169H3P??CPD*V*,SDFSYNC3*D1BWP169H3P??CPD*V*,H?B*06_SYNC2*MSFQ*_CAQ*_?,H?B*06_SYNC3*MSFQ*_CAQ*_?"
+//
+//-rdc_synchronize_cells="e??fm?20*,e??fm?30*,ec0fmn100a??n08x5,b15fm?20???1n04x5,b15fm?30???1n04x5,d04hgn20?d0?0,d04h?y23?d0?0,d04h?y2c?d0?0,g?mfm?20???1d03x5,g?mfm?30???1d03x5,g1mfmn100a??n09x5,\
+//                    g1ifm?20????d04x5,g1ifm?30????d04x5,h0mfm?20???1d04x5,h0mfm?30???1d04x5,i0?fm?20???1d0?x5,i0?fm?30???1d0?x5,\
+//                    HDBULT08_SYNC2MSFQ_Y4_2,HDBULT08_SYNC2MSFQ_Y4_4,HDBULT08_SYNC2SBMSFQ_Y4_2,HDBULT08_SYNC2SBMSFQ_Y4_4,HDBULT08_SYNC2RBMSFQ_Y4_2,HDBULT08_SYNC2RBMSFQ_Y4_4,\
+//                    HDBLVT08_SYNC3MSFQ_Y4_2,HDBLVT08_SYNC3MSFQ_Y4_4,HDBLVT08_SYNC3RBMSFQ_Y5_2,HDBLVT08_SYNC3RBMSFQ_Y5_4,HDBLVT08_SYNC3SBMSFQ_Y5_2,HDBLVT08_SYNC3SBMSFQ_Y5_4,\
+//                    HDBULT08_SYNC3MSFQ_Y4_2,HDBULT08_SYNC3MSFQ_Y4_4,HDBULT08_SYNC3RBMSFQ_Y5_2,HDBULT08_SYNC3RBMSFQ_Y5_4,HDBULT08_SYNC3SBMSFQ_Y5_2,HDBULT08_SYNC3SBMSFQ_Y5_4,\
+//                    SDFFYRPQ?D_X?N_A9T?_C1*,SDFFYSQ?D_X?N_A9T?_C1*,SDFFYQ?D_X?N_A9T?_C1*,HRY2?_X?N_A9T?_C1*,SDFSYNC2*QD1BWP*0H8P*VT,SDFSYNC3*QD1BWP*0H8P*VT,SDFSYNC2*D1BWP169H3P??CPD*V*,SDFSYNC3*D1BWP169H3P??CPD*V*,H?B*06_SYNC2*MSFQ*_CAQ*_?,H?B*06_SYNC3*MSFQ*_CAQ*_?"
+
+#To allow hierarchical virtual qualifier support
+-allow_hier_virtual_qualifier=yes
+#to change the default src_qual argument of the SGDC_qualifier34 rule to any of name, src_qual, dest_qual, none, and all argument. 
+-qualifier34_report_type=all
+
+
+#parameter to add a severity column in the CDC-detailed-report for Ac_abstract_validation02 violations.
+#report all sources of a Reset_sync02 violation
+-dump_detailed_info=Ac_abstract_validation02_severity,Reset_sync02
+
+#Change in behavior of Abstract_port27 starting 2020.12-SP2-8. This setting maintains backward compatibility.
+-abstract_port27_reporting=all 
+
+#Disable generating an SGDC file that contains suggestions for abstract_port constraints
+-autofix_abstract_port=no 
+
+//------------------------------------------------
+// Policy Specific Parameter Setting
+//------------------------------------------------
+
+//intel methodology goal specific parameters (cdc_verify_struct)
+-cdc_qualifier_depth=3 //limit the depth an inferred qualifier will be propagated
+-sync_point_selection=user_defined //if a path is affected by both an inferred qualifier, and a user-defined qualifier, pick the user-defined qualifier to report
+-enable_auto_inferred_qualifier=yes //allow Spyglass to infer qualifiers to synchronize crossings in design.
+-allow_merged_qualifier=strict //accept a qualifier for subsequent use as long as it is logically correct
+-allow_clock_on_hier_term=yes //allow use of hierarchical clock pins for -from/to_clock in qualifier specification
+-dump_sync_info=yes //report clock sync information
+-allow_crossing_src_as_src_qual=yes //support for source and dual qualifier in hierarchical flow
+
+-cdc_reduce_pessimism=mbit_macro,no_convergence_at_syncreset,no_convergence_at_enable,ignore_multi_domain,clock_crossing,use_multi_arc,clock_on_ports,glitch_on_vck_port,no_unate_reconv,remove_redundant_logic //options are: mbit_macro=dont report convergence on multi-bit arithmetic macros; no_convergence_at_syncreset=convergence on sync reset is not reported; no_convergence_at_enable=convergence on data-enable is not reported; ignore_multi_domain=dont report CDC crossing if multiple domains get to doublesync; clock_crossing=reports violations if the data pin of a seq is clock; use_multi_arc=allow multiple arcs from liberty file (.lib); hanging_net=dont report path to a seq whose output is hanging (but report if blocked ... see output_not_used, and skip_unused_paths); remove_redundant_logic:a superset of 'hanging_net', 'output_not_used', and 'skip_unused_paths'; clock_on_ports=reports Clock_info05 for clkmux to ports; glitch_on_vck_port=allow checks on the overridden output port for internal design consistency ; no_unate_reconv=remove Ac_glitch03 cases where the reconvergence is same polarity 
+
+-show_module_in_spreadsheet=yes //show module in the spreadsheet view
+-check_multiclock_bbox=yes //for black-box, if multiple clocks are propagated, do worst-case analysis using all clocks (assumes auto)
+-reset_num_flops=100 //disable auto-inferred reset by setting depth to a high number
+-reset_reduce_pessimism=filter_unused_synchronizer,same_data_reset_flop,remove_overlap,syncrst_gate_const_check,stop_at_mux_sel //options are: filter_unused_synchronizer=dont report reset synchronizers whose outputs are not used as resets; same_data_reset_flop=dont report a violation in Reset_check10 if data and set/rst pin are the same net; remove_overlap=for identical violations in Ar_unsync01, Ar_asyncdeassert01, and Reset_sync02, only report them in Reset_sync02 category; syncrst_gate_const_check=treat and/or with set_case_analysis on alternate input as buf
+-reset_depth=24 //set depth to low number to reduce performance impact on reset algorithm
+-ignore_qualifier_mismatch_rdc=yes //identify mismatches in qualifier's clock & reset domains with that of dest. object in RDC
+-enable_diff_clkdom_rdc=yes //report RDC even for src/dest are different clocks
+//Disabling for sdg paranoia (false positive bug)
+//-rdc_enable_sync_cell_qualifier=yes //sync_cell detection for RDC
+-allow_unconstrained_reset_in_rfp=yes //allows use of non-reset signals in rfp constraint
+
+#report all of the resets associated with a given RDC crossing
+-rdc_report_all_resets=yes
+
+#This parameter enables merging qualifiers to be properly analyzed
+-cdc_ignore_multi_domain=data_path
+#Performance improvements on RDC checks
+-rdc_new_implementation=yes
+-rdc_new_busmerge_option=1
+#RDC qualifier, added cdc also related to SBEP bug
+-validate_qual_enable=cdc,rdc
+#help resolve more Ac_unsync01/02 violations when simulating 'qualifier -enable constraints'
+-side_logic_as_pass_through=yes
+
+#This parameter filters out Reset_info09d violations on seqs with either constant clock, or has both set/rst pin, and one�s constant
+-Reset_info09a_filter_on_constant_clock=no
+
+#Allow Qualifiers to propagate thru various clock-gate-cells
+-and_or_based_cgc=yes
+
+#Allow qualifiers to propagate through cascaded clock gating structures.
+#removed this parameter for prod release due to qualifiers not applied in PM resulting in unresolved Ac_unsync viols. Need more debug.
+#remove comment and re-enable when clarified.
+#-allow_cascaded_cgc=yes
+
+#Promote and propagate clocks to abstract_ports that are defined as clocks
+-allow_abstracted_clock_as_derived=yes
+
+##Promote the output of a seq to clock if it drives to a clock pin of an abstract
+##-allow_abstracted_clock_as_derived=yes
+
+-enable_mux_sync=all //MUX Synchronization schemes
+#The and_sync parameter is for enabling AND and OR gates to be used as qualifying gates (not gates as synchronizers) 
+-enable_and_sync=yes //Enables the AND and OR Gate Synchronization Scheme
+-distributed_fifo=yes //Enables detection of FIFOs based on distributed memories
+-fa_disable_sync_fifo=yes //Specifies whether functional analysis should be performed on synchronous FIFO structures
+-fa_vcdfulltrace=allnets //Specifies the type of data that is to be dumped to the VCD file
+-fa_msgmode=none //Specifies the type of assertions
+-fa_hybrid_dynamic_margin=yes //Enables dynamic clock period calculation for the SVA.
+-cdc_sva_margin=100 //The margin for the SVAs will be 1 clock period(100%)
+//NOTE: The parameter below is temporarily needed between Apr5 release
+//      (with temporary fix for qualified-signal-to-abstract) until the
+//      final release is available _AND_ IPs abstracts have been refreshed
+-check_qualified_signal_at_soc=yes //turn-on a temporary hack
+
+//-show_constant_source_at_validation=yes//deprecated in M2017.03-SP2-12
+-show_constant_source=dominant //support the new constant source info for AAV02, Reset_info09b, Clock_info03b, and Clock_info03c
+-rdc_qualifier_depth=0 //Change to 0 from 3. RDC qualifiers need to be cycle accurate to block the async event from causing metastability
+
+//This parameter, when set to yes, stops the propagation of RDC qualifiers through the set/reset pins of registers.
+-rdc_qual_sim_stop_at_asyncrst=yes
+
+#list all affected flipflops that are reset in an asynchronous domain
+-report_all_flops=Reset_sync02
+
+#display additional debug/mismatch information for a given AAV02 violation.
+-enable_mismatch_reason_column=yes
+
+#To enable Clock_glitch05 violations to be absolved by either clock_relation or qualifier constraints as appropriate. STAR 9001395159
+-enable_clock_glitch_sync=yes
+
+#this is to restrict the allowable synchronizing gates to be AND, OR, NAND, NOR and MUX gates.  
+#With the default setting of "no", a user-defined qualifier may also synchronize at XOR, XNOR, and complex combinational library cells
+-strict_sync_check_for_user_defined_qual=yes
+
+#To improve the messaging for Ac_sync01/02 by being more specific about the synchronizing gate.
+-report_new_sync_reason=yes
+
+#to honor user-defined abstract_port constraints on output ports of abstracts. 
+#This is to maintain backward compatability as default behavior changed in R2020.12-SP2-6
+-read_user_defined_abs_port_on_blk_output_at_top=yes
+
+#to ignore synchronization analysis on the clock path if the source diverges from the source to both the clock path and data path.
+-ignore_clock_paths_for_graph=yes
+
+//------------------------------------------------
+// Rule Registration
+//------------------------------------------------
+-use_advcdc_features   		// STAR  9001148982	- Ac_license01 error though Advanced CDC license in available
+
+//BlackBox modeling
+
+-rules ErrorAnalyzeBBox // Reports modules without definition, or modules that could not be synthesized
+
+-rules WarnAnalyzeBBox // Reports modules with port definition, but no internal content, either due to ifdef/defines or translate_off/on
+
+-rules InfoAnalyzeBBox // Reports modules where user specified "set_option stop"
+
+//-rules Setup_blackbox01 //Reports unconstrained pins summary for black-boxes
+##-overloadrules Setup_blackbox01+severity=Error 
+//Note: Should be auto-clean once we enable worst-case BBOX analysis
+
+-rules Setup_blackbox01 //Reports unconstrained pins summary for black-boxes
+-overloadrules Setup_blackbox01+severity=Error+msgLabel=MSG_LABEL1
+
+//Errors
+
+-rules Clock_info03a // Reports unconstrained clock nets
+-overloadrules Clock_info03a+severity=Error
+
+-rules Clock_info03b //Flip-flops,latches where the data pins are tied to a constant value
+#-overloadrules Clock_info03b+severity=Warning
+-overloadrules Clock_info03b+msgLabel=ConstDataPin_RTL+severity=Info
+-overloadrules Clock_info03b+msgLabel=ConstDataPin_SCA+severity=Warning
+-overloadrules Clock_info03b+msgLabel=ConstDataPin_MIXED+severity=Warning
+
+-rules Clock_info03c // Reports Flip-flops or latches where the clock/enable pin is set to a constant
+#-overloadrules Clock_info03c+severity=Warning
+-overloadrules Clock_info03c+msgLabel=TiedToConst_RTL+severity=Info
+-overloadrules Clock_info03c+msgLabel=TiedToConst_SCA+severity=Warning
+-overloadrules Clock_info03c+msgLabel=TiedToConst_MIXED+severity=Warning
+-check_reset_for_constclock=yes //to report the source of the constrant (RTL or SCA)
+
+-rules Clock_info05 // MUX descriptions where two or more clock signals converge
+-overloadrules Clock_info05+severity=Error
+
+## -rules Clock_info05a // Signals on which the set_case_analysis should be set to control MUXed clock selection
+-overloadrules Clock_info05a+severity=Error
+
+-rules Clock_info05b // Combinational gates other than MUXes where two or more clock signals converge
+-overloadrules Clock_info05b+severity=Error
+
+-rules Clock_info05c // Unconstrained muxes which do not receive clocks in all its data inputs
+
+-rules Clock_check07 // Reports clocks being overriden
+-overloadrules Clock_check07+severity=Error
+
+-rules Reset_info09d // Reports Unconstrained asynchronous reset nets
+-overloadrules Reset_info09d+severity=Error+msgLabel=viol_driven_1
+-overloadrules Reset_info09d+severity=Error+msgLabel=viol_driven_2
+-overloadrules Reset_info09d+severity=Error+msgLabel=viol_driven_3
+-overloadrules Reset_info09d+severity=Error+msgLabel=viol_undriven
+
+##Pending SP2-14 bug-fix:-rules Reset_info09b // Reports resets that are tied-off
+-rules Reset_info09b // Reports resets that are tied-off
+##-overloadrules Reset_info09b+severity=Warning
+-overloadrules Reset_info09b+msgLabel=RstTiedToConstError_RTL+severity=Warning     #ConstError is active value
+-overloadrules Reset_info09b+msgLabel=RstTiedToConstError_SCA+severity=Warning     #ConstError is active value
+-overloadrules Reset_info09b+msgLabel=RstTiedToConstError_MIXED+severity=Warning   #ConstError is active value 
+-overloadrules Reset_info09b+msgLabel=RstTiedToConstInfo_RTL+severity=Info         #ConstInfo is inactive value
+-overloadrules Reset_info09b+msgLabel=RstTiedToConstInfo_SCA+severity=Warning      #ConstInfo is inactive value
+-overloadrules Reset_info09b+msgLabel=RstTiedToConstInfo_MIXED+severity=Warning    #ConstInfo is inactive value
+
+-rules Ac_resetvalue01 // Missing -value field of the reset constraint defined in an SGDC file
+-overloadrules Ac_resetvalue01+severity=Error
+
+-rules Reset_check12 // Flops that do not get active reset during power on reset
+-overloadrules Reset_check12+severity=Error+msgLabel=NORMAL_WARNING
+-overloadrules Reset_check12+severity=Info+msgLabel=CORNER_WARNING
+
+-rules Clock_sync05a //Check for inferred primary inputs with multiple clocks
+-overloadrules Clock_sync05a+severity=Error
+
+-infer_data_domain_on_clock_path=yes
+-check_domain_on_clock_path=yes
+
+-rules Clock_sync06a //Check for inferred primary inputs with multiple clocks
+-overloadrules Clock_sync06a+severity=Error
+
+-rules Setup_port01 //Reports unconstrained ports summary for top design unit
+//Note: Should be auto-clean once we enable user_inferred_ports parameter
+
+-rules Setup_library01 //Reports unconstrained ports summary for liberty files
+#Note: Should NOT be reading any liberty files?!?
+-overloadrules Setup_library01+severity=Error
+
+#Abstract_port constraint checks. Error if missing "-clock", or has "-path_logic" or "-ignore". Warning if it has "-override"
+#asethi - below for 2017 mig.
+-rules SGDC_abstract_port27
+-overloadrules SGDC_abstract_port27+severity=Error+msgLabel=clockNotGiven
+-overloadrules SGDC_abstract_port27+severity=Error+msgLabel=pathLogicGiven
+-overloadrules SGDC_abstract_port27+severity=Error+msgLabel=ignoreGiven
+-overloadrules SGDC_abstract_port27+severity=Warning+msgLabel=overrideGiven
+-overloadrules SGDC_abstract_port27+severity=Warning+msgLabel=abstractPortGiven
+-overloadrules SGDC_abstract_port27+severity=Warning+msgLabel=overrideWithAbsPortGiven
+
+-rules SGDC_set_case_analysis_LC
+-overloadrules SGDC_set_case_analysis_LC+severity=Error
+
+#-clock missing is ERROR
+#-path_logic in user-constraint is ERROR
+#-ignore in user-constraint is ERROR
+#-override is WARNING (for paranoia)
+
+-rules Clock_glitch05 // Checks for gated-clock issues due to unsynchronized enables
+
+-rules Ac_unsync01 // Asynchronous clock domain crossings for scalar signals that have at least one unsynchronized source
+
+-rules Ac_unsync02 // Asynchronous clock domain crossings for vector signals having at least one unsynchronized source
+
+-rules Ac_clock_relation01 // Checks for clock phase/edge relationships
+-overloadrules  Ac_clock_relation01+severity=Warning
+
+-rules Ar_syncrstactive01 // Polarity on synchronous reset usage mismatches with -active field in sync_reset_style constraint
+
+-rules Ar_syncrstcombo01 // Combinational logic in synchronous reset path mismatches with -combo field in sync_reset_style constraint
+
+-rules Ar_syncrstload01 // Load on synchronous reset less than the specified max load
+
+-rules Ar_syncrstload02 // Load on synchronous reset exceeds the specified min load
+
+-rules Ar_syncrstpragma01 // Pragma specification on synchronous reset usage mismatches with -pragma field in sync_reset_style constraint
+
+-rules Ar_syncrstrtl01 // Reports if synchronous reset is not detected in condition of first if statement
+
+-rules Ar_unsync01 // Reports unsynchronized reset signals in the design
+
+-rules Ar_asyncdeassert01 // Reports if reset signal is asynchronously de-asserted
+
+-rules Reset_sync02 // Asynchronous resets used in a clock domain and generated in one of its asynchronous clock domains
+-overloadrules Reset_sync02+severity=Error
+
+-rules Ar_resetcross01 //Enabling RDC
+//-overloadrules Ar_resetcross01+severity=Error
+-overloadrules Ar_resetcross01+msgLabel=AR_RESETCROSS01_WRN_RSN+severity=Error
+-overloadrules Ar_resetcross01+msgLabel=AR_RESETCROSS01_WRN_RSN_SINGLE_BIT+severity=Error
+-overloadrules Ar_resetcross01+msgLabel=AR_RESETCROSS01_WRN_RSN_BUS_DECOMPRESS+severity=Error
+-overloadrules Ar_resetcross01+msgLabel=AR_RESETCROSS01_WRN_RSN_DIFF_CLK+severity=Error
+-overloadrules Ar_resetcross01+msgLabel=AR_RESETCROSS01_WRN_RSN_SINGLE_BIT_DIFF_CLK+severity=Error
+-overloadrules Ar_resetcross01+msgLabel=AR_RESETCROSS01_WRN_RSN_BUS_DECOMPRESS_DIFF_CLK+severity=Error
+
+-rules Ar_resetcross_matrix01 //Enabling RDC
+
+
+-rules checkSGDC_01 //Checks validity of current_design names specified in constraints file
+-overloadrules checkSGDC_01+severity=Error
+
+-rules Setup_abstract03 //flag pins without proper representation in an abstract. Replaces Error in Ac_abstract01 which was not on per pin basis
+
+-rules SGDC_Abstract01 //lists abstracts loaded
+
+-rules SGDC_Abstract02 //lists abstracts not loaded
+-overloadrules SGDC_Abstract02+severity=Error
+
+-rules SGDC_Abstract03 //lists abstracts that don't cover all interface
+//-overloadrules SGDC_Abstract03+severity=Error
+
+-rules SGDC_Abstract10 //abstract parameter mismatch
+-overloadrules SGDC_Abstract10+severity=Error
+
+-rules SGDC_Abstract11 //abstract from IP not clean
+//-overloadrules SGDC_Abstract11+severity=Error
+
+-rules SGDC_Abstract16 //abstract not loaded because it's also a blackboxed
+-overloadrules SGDC_Abstract16+severity=Error
+
+-rules SGDC_Abstract18 //abstract not loaded and synthesized
+-overloadrules SGDC_Abstract18+severity=Error
+
+-rules Ac_abstract_validation02 //Reports block abstraction mismatch with top level design
+-validate_reduce_pessimism=quasi_static,constant,ignore_domain_overconstraint,any_async_reset_match //ignore reporting on the block ports that have a constant or quasi static signal reaching on them, or have multiple constraints where some match; but report hanging and resets
+-abstract_validate_express=auto_qualifier,quasi_static,case_analysis //Enables low noise and low effort validation checks for hierarchical SoC flow
+-report_matched_attributes=yes //adds "matched" attributes to the Ac_abstract_validation02 message, so that waivers can be more precise
+
+-rules SGDC_reset_filter_path_validation01 //Enables checking consistency of RFP across hiers
+-overloadrules SGDC_reset_filter_path_validation01+severity=Error
+
+-rules SGDC_reset_filter_path_validation02 //Enables checking consistency of RFP across hiers
+-overloadrules SGDC_reset_filter_path_validation02+severity=Warning
+-top_to_block_rfp_subset_matching=yes //subset matching at block level
+
+-rules SGDC_reset_filter_path03a //Checks if arguments to -from_rst does not exist as a net, port, hierarchical terminal, or virtual reset in current design
+-overloadrules SGDC_reset_filter_path03a+severity=Error
+
+#-rules Reset_sync04 //Asynchronous resets synchronized more than once in the same clock domain
+
+#-rules Ac_conv01 //same domain signals synchronized in same destination domain, converge after any number of sequential elements
+
+#-rules Ac_conv02 //same-domain signals synchronized in same destination domain and converge before sequential elements.
+
+#-rules Ac_conv03 // Convergence of synchronized signals from different source domains
+
+#-rules Ac_conv04 //For all control-bus clock domain crossings that do not converge, checks for uniform synchronization schemes and further checks gray encoding when formal is enabled
+
+-rules Ac_coherency06 //Reports signals synchronized more than once in the same clock domain
+-overloadrules Ac_coherency06+severity=Warning
+
+-rules Ac_glitch03 // Reports clock domain crossings subject to glitches
+-allow_combo_logic=yes //allows combinational logic between crossings only if the logic is within the modules specified using this constraint.
+
+//Removed rule refer HSD: 1409369105
+//-rules Ac_glitch04 // Reports glitches on synchronized data path crossings or unsynchronized crossings 
+
+//Warnings
+
+-rules Ac_clockperiod02 //Clocks whose periods are rounded off by SpyGlass for lower design cycle for faster functional analysis
+-overloadrules Ac_clockperiod02+severity=Warning
+
+-rules Ac_clockperiod03 // Clocks with design cycles greater than the threshold value
+-overloadrules Ac_clockperiod03+severity=Warning
+
+-rules Ac_initstate01 // Reports a valid state of the design from which the formal analysis would actually start
+
+-rules Setup_check03 //Reports all unconstrained nets in the design. Default Warning severity
+
+-rules Clock_converge01 // Clocks whose multiple fan-outs converge
+-overloadrules Clock_converge01+severity=Info
+
+-rules Reset_check03 //Reset signals that are being used at both levels to set or reset flip-flops synchronously
+-overloadrules Reset_check03+severity=Warning
+
+-rules Reset_check07 // Combinational logic in reset path
+-overloadrules Reset_check07+severity=Warning
+
+-rules Reset_check10 // Asynchronous resets used as non-reset signals
+-overloadrules Reset_check10+severity=Warning
+
+-rules Reset_check11 //Asynchronous resets used as both active-high and active-low
+-overloadrules Reset_check11+severity=Warning
+
+-rules Ar_converge01 //Reports a reset signal whose multiple fan-outs converge
+-overloadrules Ar_converge01+severity=Warning
+
+-rules SGDC_qualifier10 //Reports if the domain specified by -from_clk/from_domain and -to_clk/to_domain of the qualifier are same
+-overloadrules SGDC_qualifier10+severity=Warning
+
+-rules SGDC_qualifier24 //Existence check for '-src_qual' field of constraint 'qualifier' 
+-overloadrules SGDC_qualifier24+severity=Warning
+
+-rules SGDC_qualifier25 //Existence check for '-dest_qual' field of constraint 'qualifier' 
+-overloadrules SGDC_qualifier25+severity=Warning
+
+-rules SGDC_qualifier34 //Reports if a reset constraint is applied on qualifier -src_qual/-dest_qual/-name arguments 
+-overloadrules SGDC_qualifier34+severity=Error
+
+-rules SGDC_qualifier02a //Reports a violation if an invalid clock is specified in the -from_clk argument of the qualifier constraint
+-overloadrules SGDC_qualifier02a+severity=Warning
+
+-rules SGDC_qualifier03a //Reports a violation if invalid clock names are specified in the -to_clk argument of the qualifier constraint
+-overloadrules SGDC_qualifier03a+severity=Warning
+
+//Info
+
+-rules Ac_sync01 // Asynchronous clock domain crossings for scalar signals that have all the sources synchronized
+
+-rules Ac_sync02 // Asynchronous clock domain crossings for vector signals that have all sources synchronized
+
+-rules Ar_sync01 // Reports synchronized reset signals in the design
+
+-rules Ar_syncdeassert01 // Reports if reset signal is synchronously de-asserted or not de-asserted at all
+
+//Disabling rule as the file availability confusing users
+//-rules Setup_quasi_static01 // Reports likely quasi-static candidates in the design
+
+-rules Clock_check10 // Reports clocks being used as data
+
+-rules Clock_info02 // Prints the clock tree for specified clock signals
+
+-rules Reset_info02 // Prints the preset/clear tree for specified preset/clear signals
+
+-rules Clock_info15 // Generates clock domain information for primary ports
+
+-rules Ar_syncrst_setupcheck01 // Reports constant value on functional flops in synchronous reset deassert-mode
+-overloadrules Ar_syncrst_setupcheck01+severity=Warning
+
+-rules Info_Case_Analysis // Constant propagation in schematic display
+
+//disabling rule due to performance bug
+//-rules Setup_clock01 // Generates information needed for Clock Setup
+
+//disabling rule to improve performance 
+//-rules Clock_info01 // Clock candidates in the design
+
+//disabling rule to improve performance 
+//-rules Reset_info01 // Asynchronous and synchronous preset and clear candidates in the design
+
+//Commenting this out to improve SubSystem runtime, since this rule is not really needed
+//-rules Ac_crossing01 // Generate spreadsheet for Crossing Matrix view
+
+-rules SGDC_abstract_mapping01 //Reports clock mapping of an abstracted instance
+
+-rules Ac_abstract01 //Enable abstract generation
+
+-rules SGDC_clock_relation01b // Enter comment here
+-overloadrules SGDC_clock_relation01b+severity=Warning
+
+-rules SGDC_clock_relation02b // Enter comment here
+-overloadrules SGDC_clock_relation02b+severity=Warning
+
+-rules Ar_sync01_nonconst //to detect reset-synchronizer data pin not driven by constant
+
+-rules SGDC_Abstract_Mismatch
+-overloadrules SGDC_Abstract_Mismatch+severity=Error  // report violation for mismatched parameters between abstracted module
+
+-infer_constraint_from_abstract_blocks=clock,reset
+
+-ignore_single_domain_inferred_ports=yes
+
+-report_cgc_dest_rdc=yes  // Allows latches inside clock-gating cells to be treated as endpoints for RDC. 
+//Commenting out temporarily till SNPS fixes some issues associalted with it. Related STAR #3735278
+//Fix was supposed to come in 1906-SP2-18 but now something else is broken. STAR #4057786
+//Re-enabling in 5.00.01 with 2022.06-SP1-1 all bugs fixed per SNPS
+
+//hierarchical clock relation support
+-rules SGDC_clock_relation_validation01
+-rules SGDC_clock_relation_validation02
+-check_clock_relationship_hier_flow=yes
+// -qual_prop_beyond_quasi_dest=yes //propagating qualifiers beyond quasi_static destinations. Commenting out temporarily till SNPS fixes some issues associalted with it.
+
+-overloadrules SGDC_RDC_Bbox02+severity=Warning
+
+-unknown_clock_phase_through_seq=yes
+
+-always_prop_reset_thru_reset_synchronizer=no
+
+// -rules Setup_abstract02  //This line should be uncommented when the complete fix is available in SP2-11 or 12. See release notes ticket for details. 
+
+// -cdc_src_dest_qual_exact_depth=yes // Commenting this and the line below as we dont have many designs to test this out and SNPS is not sure of its impact on runtime for rest of the designs.
+// -enable_depth_based_soc_check=yes
+
+-enable_new_reset_seq_prop=no //Change from SGCDC WG 2021WW49. Ref minutes for details or HSD related to 4.00.01 methodolody release
+
+-check_all_derived_reset_fanins=yes    //This parameter enables full sequential fan-in for derivation of clock domains on resets in the Ar_unsyc01 rule and not just bufferes and inverters
+
+-reanalyze_vclk_mapping=yes //This parameter enables propagation of a virtual clock from an abstract input pin to a parent input pin that is not constrained.
+
+-disable_qualified_combo_path=yes //This parameter removes the combo path between an input port and an output port if the input port is qualified properly. This ensures that the output port has the correct qualified clock domain, which eliminates false violations in its fanout.
+
+-disable_cdc_attrib_propagation=yes //This parameter may be used to prohibit cdc_attribute -exclusive properties to propagate through sequential elements.
+
+-use_reset_sim_for_active_val=yes  //This parameter generates the active value of resets dumped during abstraction using the simulated value obtained by performing the simulation after applying the active value on resets. Also, under the same parameter, during validation if simulated value at the parent matches the active value of reset specified at the child than the validation check would be suppressed.
+
+-cdc_attribute_ignore_buf_inv=yes  //This parameter, when set to �yes�, allows application of cdc_attribute -exclusive on nets or hierarchical pins downstream from the source register, provided that there is only simple logic (buffers, inverters, and equivalents) between the source register and the point of application of the constraint.
+
+-cdc_attribute_hier_flow=yes   // for hierarchical support for cdc_attribute
+-decompile_block_constraints // Create merged abstract model
+
+//------------------------------------------------
+// End of Rule Registration
+//------------------------------------------------
+
+//---------------------------------------------
+// Include Project Goal override
+//---------------------------------------------
+//-include_goal $SPYGLASS_CDC_VERIFY_STRUCT_GOAL_OVERRIDE
+
