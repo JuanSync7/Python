@@ -1,0 +1,157 @@
+#Read options (same for precompile)
+set_option enableSV12 yes
+set_option allow_non_lrm yes
+#set_option libext .v .sv .vs .vh .h
+set_option relax_hdl_parsing yes
+set_option handlememory yes
+set_option mthresh 16000
+                                
+#Read options (to allow passing-up messages
+set_option show_lib yes
+set_option dump_precompile_builtin yes
+set_option hdllibdu yes
+set_option enable_pass_exit_codes yes
+set_option customized_exit_code yes	
+set_option allow_module_override yes
+#'set_option overloadrules WRN_1034+severity=Fatal
+
+#Read options (disable lexical rule checks on precompiled design units)
+#to handle out of memory error due to increase in peak memory
+set_option disable_hdllibdu_lexical_checks yes
+
+#Read options (enable special Intel SV, eg. $typeof)
+#set_option diamond_operator yes
+                                
+#Read options (only for top-level)
+set_option enable_precompile_vlog yes
+set_option strict_sgdc_check yes
+#set_option designread_enable_synthesis yes
+                                
+#Read options (reports)
+set_option report {moresimple summary Ac_sync_qualifier Ac_sync_group_detail CDC-detailed-report count}
+set_option report_ip_waiver yes
+                                
+#Read options (save/restore)
+set_option nosavepolicy all
+set_option savepolicy clock-reset
+set_option project_read_only yes
+                                
+#Read options (performance log)
+set_option perflog yes
+#'set_option enable_elab_time
+                                
+#Read options (DesignWare)
+set_option dw yes
+set_option disable_amg no
+set_option dw_options use_realpath
+set_option lib SPY_DW_WORK ./dw_work
+set_option lib GLOBAL_SPY_DW_WORK $env(SPYGLASS_HOME)/precompiled_dw_work
+                                
+#Read options (abstract inclusive of input constraints)
+set_option decompile_block_constraints yes
+
+#allow user to override the output port constraint in the abstract
+set_option allow_constraints_override yes
+
+#limit violations reported to 10K, to help subsystems starting with performance
+set_option lvpr -1
+                                
+#view all instances for each design unit in elab_summary.rpt
+set_option report_max_inst {-1}
+                              
+#These options enable proper synthesis of RFs/Arrays and Mux-Latch
+#set_option sgsyn_opt_file $env(SPYGLASS_METHODOLOGY_CDC)/setup.tcl
+
+#option to convert certain non-synthesizable construct to corresponding synth
+#added to handle pmos nmos in std cells. CASE#8001038087  
+set_option enable_fpga yes
+
+#for structs STAR#9001220565
+set_option enable_unified_naming_search no
+set_option compat_opts treat_escape_wildcard
+set_option ignorerules {SGDCWRN_127}
+
+
+#For disabling reset inferrence on SDLs (Set-Dominant-Latch designs)
+#'set_option disable_infer_async_rst_latch {nhm_genarray_rwc }',
+#EUNS
+#'set_option enable_unified_naming_search no', #already set above
+set_option do_flat_name_check yes
+set_option decompile_expanded_constraints yes
+set_option block_level_sanity yes
+
+#to avoid default truncation of big decimal numbers in abstract models
+set_option handle_large_param yes
+#enable the SGDC_Abstract11 rule to report violations with ERROR severity if at least one abstract_block_violation constraint is generated with the -sev argument
+set_option sgdc_abstract_severity yes
+
+#to allow constraints placed on pins of instantiations to propagate onto wires that are connected to those pins
+set_option sca_on_net yes
+set_option mm_continue_modes_on_fatal yes				
+# use new VFS feature to resolve disk and inode usage issues
+set_option enable_vfs_for_vlog yes 
+
+#enable Spyglass to check mode combinations to ensure that they are whole and complete
+set_option do_sca_audit yes
+set_option num_viol_sca_audit 1000
+set_option num_objects_sca_audit 64
+
+set_option use_multi_process { synthesis }
+set_option sgsyn_max_core_count 4
+
+set_option ignorewaivers yes
+set_option dump_no_viol_in_abstract yes
+
+#These options will control which property will be applied to a Q pin of a register with a load enable (EN) pin when the D pin is tied to a constant
+#With foll options constant/quasi_static property is not propgataed to the Q pin as EN is unknown.
+set_option disable_flop_enable_relax_check yes
+set_option treat_clk_unblocked_on_fixed_data yes
+#For CDC analysis to the code wrapped around celldefine
+set_option check_celldefine yes
+set_option allow_celldefine_as_top yes
+
+set_option macro_synthesis_off yes
+
+#This option enables applying waivers during individual mode runs for Modal Analysis.  The default is to NOT apply waivers during individual mode runs for performance reasons.
+set_option enable_waiver_in_mode_run yes
+
+#To recursively dump constraints from children into parent abstracts for the benefit of the ip_block RDC flow 
+#so that internal lower-level constraints can be applied at the highest parent level.
+#Only activated when the parameter ‘decompile_nested_sgdc_constraints’ is on.
+#set_option decompile_nested_sgdc_constraints yes 
+#decompile_nested_sgdc_constraints is actually not needed for nested decompile to work and should not be used as it puts full paths of subIP abstracts causing failures when inaccessable.  
+set_option dump_nested_import_content yes
+
+#To increase the performance of Spyglass CDC on NFS systems
+#Related to STAR 4236679
+set_option enable_nfs_regr yes
+set_option buffer_decompile_sgdc yes
+
+#To maintain backwards compatibility with previous releases of Spyglass
+#without this option SG will fatal when a module is included in rdc_import_use_bbox, and user has applied a set_option stop and there is no abstract imported for it 
+set_option compat_opts allow_rdc_import_use_bbox_without_abstract
+
+#####what should be done for the following things
+
+##Constraints for port/bbox inference
+#read_file -type sgdc $env(SPYGLASS_METHODOLOGY_CDC)/cdc/cdc_portInference.sgdc
+##Three Waiver files global (for common waivers), permanent (for IP-specific waivers), and temporary (for HSD fixes in-flight)
+#read_file -type awl  $env(SPYGLASS_METHODOLOGY_CDC)/cdc/cdc_commonWaivers.awl
+
+
+# BU specific constraints
+# if {[file exists  $env(SG_OVERRIDES)/sgcdc/$env(SG_OVERRIDES_PROJ)_commonConstraints.sgdc] == 1} {
+#     read_file -type sgdc $env(SG_OVERRIDES)/sgcdc/$env(SG_OVERRIDES_PROJ)_commonConstraints.sgdc
+# }
+# if {[file exists  $env(SG_OVERRIDES)/sgcdc/$env(SG_OVERRIDES_PROJ)_commonConstraints.sgdc] == 1} {
+#     read_file -type sgdc $env(SG_OVERRIDES)/sgcdc/$env(SG_OVERRIDES_PROJ)_commonConstraints.sgdc
+# }
+
+# BU specific waivers
+# if {[file exists  $env(SG_OVERRIDES)/sgcdc/$env(SG_OVERRIDES_PROJ)_commonWaivers.awl] == 1} {
+#     read_file -type awl $env(SG_OVERRIDES)/sgcdc/$env(SG_OVERRIDES_PROJ)_commonWaivers.awl
+# }
+
+set_option sdc2sgdc yes
+set_option use_vcs_compile yes
+set_option enable_vfs_for_vlog no
