@@ -1,0 +1,87 @@
+#lint on comment_not_in_english
+#lint report check -severity info comment_not_in_english
+
+
+# integer checks
+lint on delay_not_int
+lint report check -severity warning delay_not_int
+
+# Expression Checks
+lint on reduction_operator_on_single_bit
+lint report check -severity info reduction_operator_on_single_bit
+lint on operand_redundant
+lint report check -severity info operand_redundant
+
+# Ports
+lint on multi_ports_in_single_line
+lint report check -severity info multi_ports_in_single_line
+
+# VHDL only checks
+lint on case_others_null
+lint report check -severity info case_others_null
+lint on gen_loop_index_not_int
+lint report check -severity warning gen_loop_index_not_int
+lint on gen_inst_label_duplicate
+lint report check -severity warning gen_inst_label_duplicate
+lint on process_without_event
+lint report check -severity warning process_without_event
+lint on std_packages_mixed
+lint report check -severity info std_packages_mixed
+lint on sim_synth_mismatch_shared_var
+lint report check -severity error sim_synth_mismatch_shared_var
+lint on std_logic_vector_without_range
+lint report check -severity warning std_logic_vector_without_range
+#lint on unsynth_else_after_clk_event
+lint report check -severity warning unsynth_else_after_clk_event
+#lint on unsynth_clk_in_concurrent_stmt
+lint report check -severity warning unsynth_clk_in_concurrent_stmt
+#lint on generic_map_ordered
+lint report check -severity warning generic_map_ordered
+#lint on generic_not_specified
+lint report check -severity warning generic_not_specified
+#lint on unsynth_allocator
+#lint on func_aggregate_invalid
+#lint on design_with_sync_async_reset_process
+#lint on entity_with_sync_async_reset_process
+#lint on assign_others_to_slice
+#lint on vector_assign_style_disallowed
+#lint on process_has_multiple_async_control
+#lint on process_without_async_reset
+#lint on generic_in_top_module
+#lint on generic_default_value_not_defined
+#lint on attribute_with_keyword_all
+#lint on const_with_inconsistent_value
+#lint on unsynth_access_type
+#lint on unsynth_alias_declaration
+#lint on unsynth_configuration
+#lint on unsynth_deferred_const
+#lint on unsynth_disconnection_spec
+#lint on unsynth_enum_encoding_attribute
+#lint on unsynth_file_type
+#lint on unsynth_multi_dim_array
+#lint on unsynth_port_type
+#lint on unsynth_port_type_unconstrained
+#lint on unsynth_predefined_attribute
+#lint on unsynth_resolution_func
+#lint on unsynth_signal_kind_register_bus
+#lint on unsynth_user_defined_attribute
+#lint on unsynth_aggregate_indirect_assign
+#lint on unsynth_arithmetic_operator
+#lint on unsynth_array_index_type_enum
+#lint on unsynth_block_stmt_header
+#lint on unsynth_const_redefined
+#lint on unsynth_generic_not_int
+#lint on unsynth_generic_type
+#lint on unsynth_physical_type
+#lint on unsynth_signal_in_package
+#lint on unsynth_stmt_in_entity
+#lint on unsynth_type_declaration_incomplete
+#lint on int_range_overflow
+### W19 - Reports the truncation of extra bits
+lint on const_value_width_size_mismatch
+lint report check -severity error const_value_width_size_mismatch
+### W422 - Unsynthesizable block or process: event control has more than one clock 
+lint on unsynth_clocking_style 
+lint on unsynth_multi_wait_with_same_clk 
+lint report check -severity error unsynth_clocking_style 
+lint report check -severity error unsynth_multi_wait_with_same_clk
