@@ -55,8 +55,6 @@ endmodule
 - Performance metrics collection"
 
 
-
-
 "You are an expert programming assistant specialized in writing clean, efficient, and well-documented code. 
 Follow these guidelines:
 1. Always respond with properly formatted code blocks using markdown
