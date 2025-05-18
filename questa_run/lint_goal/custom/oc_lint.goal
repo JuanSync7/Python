@@ -1,0 +1,1081 @@
+#====================================================================================================
+#Lint Methodology File
+#Questa Lint  Version 2024.2-INTERNAL N/A linux_x86_64 30-Jan-2024
+
+#Description          : View enabled checks as per the selected methodology. Add/remove checks and check directives.
+#Goal                 : oc_lint.goal
+
+#Sections:
+#   Section 1 : User Copied Checks
+#   Section 2 : Enabled Checks
+#   Section 3 : Disabled Checks
+#   Section 4 : Check Directives
+#====================================================================================================
+
+#====================================================================================================
+#Section 1  : User Copied Checks
+#Description: Specify directives to copy checks
+#====================================================================================================
+lint copy check no_fixme -use regex_user_defined -severity error -message "there is a FIXME in the code"
+lint preference -check no_fixme -regex_user_defined_patterns_icase {\mfixme\m}
+lint on no_fixme
+lint report check -severity error no_fixme
+lint copy check no_todo -use regex_user_defined -severity error -message "there is a TODO in the code"
+lint preference -check no_todo -regex_user_defined_patterns_icase {\mtodo\m}
+lint on no_todo
+lint report check -severity error no_todo
+lint copy check no_bug_or_issue -use regex_user_defined -severity error -message "there is a bug or issue comment in the code"
+lint preference -check no_bug_or_issue -regex_user_defined_patterns {\mBUG\m \mBUGS\m \mSSUE\m \mISSUES\m}
+lint on no_bug_or_issue
+lint report check -severity error no_bug_or_issue
+
+#====================================================================================================
+#Section 2  : Enabled Checks
+#Description: Delete/Comment row to disable check
+#====================================================================================================
+#Category : Clock
+#Sub-Category : Clock Connection
+lint on clk_port_conn_complex
+#Sub-Category : Clock Semantics
+lint on bus_bit_as_clk
+lint on clock_in_wait_stmt
+#Sub-Category : Reset Semantics
+lint on async_reset_active_high
+#Category : Connectivity
+#Sub-Category : Connection Information
+lint on flop_redundant
+lint on long_combinational_path
+lint on re_entrant_output
+lint on undriven_latch_data
+lint on undriven_reg_data
+lint on undriven_signal
+#Sub-Category : Constant Driver
+#Sub-Category : Port Connection
+lint on blackbox_input_conn_inconsistent
+lint on blackbox_output_control_signal
+lint on inout_port_exists
+lint on port_conn_is_expression
+#Category : Nomenclature Style
+#Sub-Category : Comment
+lint on comment_has_control_char
+#Sub-Category : Naming
+#lint on identifier_with_error_warning
+#Category : Reset
+#Sub-Category : Reset Connection
+lint on signal_sync_async
+#Sub-Category : Reset Semantics
+lint on always_has_inconsistent_async_control
+lint on process_has_inconsistent_async_control
+lint on reset_set_with_both_polarity
+#Category : Rtl Design Style
+#Sub-Category : Assign
+lint on assign_chain
+lint on signal_with_negative_value
+lint on var_assign_without_deassign
+lint on var_deassign_without_assign
+lint on var_forced_without_release
+lint on var_released_without_force
+#Sub-Category : Case
+#lint on case_nested
+#Sub-Category : Clock Semantics
+lint on data_event_has_edge
+#Sub-Category : Delay
+lint on delay_in_non_flop_expr
+lint on delay_without_timescale
+#Sub-Category : Expression
+lint on condition_has_assign
+#lint on conditional_operator_nested
+#Sub-Category : Function
+lint on func_return_before_last_stmt
+lint on func_return_range_fixed
+#Sub-Category : Loop
+lint on synth_pragma_prefix_missing
+#Sub-Category : Port Connection
+lint on enum_decl_info_missing
+lint on parameter_count_large
+#Sub-Category : Sensitivity List
+lint on sensitivity_list_operator_unexpected
+#Sub-Category : Task
+#Sub-Category : Unsynthesizable Logic
+lint on assign_with_multi_arith_operations
+lint on div_mod_rem_operand_complex_expr
+lint on loop_without_break
+lint on unsynth_dc_shell_script
+#Sub-Category : Usage
+#lint on always_exceeds_line_limit
+#lint on always_signal_assign_large
+lint on bus_bits_in_multi_seq_blocks
+lint on case_with_memory_output
+lint on conversion_to_stdlogicvector_invalid
+lint on data_type_std_ulogic
+lint on empty_module
+lint on func_expr_input_size_mismatch
+lint on gen_label_duplicate
+lint on if_else_if_can_be_case
+lint on if_stmt_shares_arithmetic_operator
+lint on if_stmt_with_arith_expr
+lint on if_with_memory_output
+lint on inferred_blackbox
+lint on inst_param_width_overflow
+#lint on line_char_large
+lint on memory_not_set
+lint on memory_redefined
+lint on part_select_illegal
+lint on pragma_coverage_off_nested
+lint on pragma_translate_off_nested
+lint on pragma_translate_on_nested
+#lint on process_exceeds_line_limit
+lint on process_signal_assign_large
+lint on process_var_assign_disorder
+lint on reference_event_without_edge
+lint on selected_signal_stmt
+lint on shared_variable_in_multi_process
+lint on signal_assign_in_multi_initial
+lint on string_has_control_char
+lint on sync_read_as_async
+lint on synopsys_attribute
+lint on timescales_differ
+lint on tristate_not_at_top_level
+lint on two_state_data_type
+lint on unresolved_module
+lint on user_blackbox
+lint on var_read_before_set
+#Sub-Category : Width
+#Category : Simulation
+#Sub-Category : Sensitivity List
+#Sub-Category : Simulation And Synthesis Mismatch
+lint on delay_has_x_z
+lint on func_nonblocking_assign
+lint on sim_synth_mismatch_assign_event
+lint on sim_synth_mismatch_tristate_compare
+#Sub-Category : Simulation Race
+#Category : Synthesis
+#Sub-Category : Unsynthesizable Logic
+#Category : Testbench
+#Sub-Category : Timimg Mismatch
+lint on task_has_event_and_input
+lint on task_has_event_and_output
+
+#====================================================================================================
+#Section 3  : Disabled Checks
+#Description: Remove comment(#) to enable check
+#====================================================================================================
+#Category : Clock
+#Sub-Category : Clock Connection
+#lint on clock_internal
+#lint on clock_path_buffer
+#lint on clock_with_different_names
+#Sub-Category : Clock Semantics
+#lint on clock_event_in_process_block
+#lint on module_has_multi_clks
+lint on unsynth_clock_read_in_always
+lint report check -severity warning unsynth_clock_read_in_always
+#Sub-Category : Sensitivity List
+#lint on process_all_disallowed
+#Category : Connectivity
+#Sub-Category : Connection Information
+#lint on bus_conn_to_prim_gate
+lint on flop_output_as_clock
+lint report check -severity warning flop_output_as_clock
+#lint on high_fanout_signal
+#lint on logic_levels_large
+#lint on tristate_multi_driven
+
+#Sub-Category : Constant Driver
+#lint on const_latch_data
+#lint on const_output
+#lint on const_reg_data
+#lint on const_signal
+#Sub-Category : Port Connection
+#lint on combo_path_input_to_output
+#lint on inout_not_driven_by_tristate
+#lint on inout_port_not_read
+#lint on module_without_ports
+#lint on ordered_parameter_connection
+#lint on output_port_read
+#lint on parameter_assignment_ordered
+#lint on port_order_not_standard
+#Category : Nomenclature Style
+#Sub-Category : Comment
+#lint on block_comment
+#lint on block_scope_comment_missing
+#lint on comment_density_low
+#lint on construct_comment_missing
+#lint on decl_comment_missing
+#lint on header_field_author_invalid
+#lint on header_field_copyright_invalid
+#lint on header_field_date_invalid
+#lint on header_field_description_invalid
+#lint on header_field_revision_invalid
+#Sub-Category : Naming
+#lint on active_low_signal_name_not_standard
+#lint on architecture_name_not_standard
+#lint on async_signal_name_not_standard
+#lint on clock_name_not_standard
+#lint on configuration_name_not_standard
+#lint on context_name_not_standard
+#lint on design_element_has_std_word
+#lint on enable_signal_name_not_standard
+#lint on entity_component_name_mismatch
+#lint on file_extension_not_standard
+#lint on file_func_name_mismatch
+#lint on file_name_not_standard
+#lint on hierarchical_name_large
+#lint on input_port_name_not_standard
+#lint on inst_port_signal_name_mismatch
+#lint on lib_cell_name_as_mod_inst
+#lint on module_inst_name_mismatch
+#lint on output_driver_name_not_standard
+#lint on output_port_name_not_standard
+#lint on package_file_name_not_standard
+#lint on package_name_not_standard
+#lint on procedure_name_not_standard
+#lint on reg_name_not_standard
+#lint on reset_name_not_standard
+#lint on signal_name_disallowed
+#lint on tristate_name_not_standard
+#Category : Reset
+#Sub-Category : Reset
+#lint on control_signal_active_low
+#Sub-Category : Reset Connection
+#lint on async_control_is_gated
+#lint on async_control_is_internal
+#lint on reset_set_same_net_driven
+#lint on sync_control_is_external
+#lint on sync_control_is_internal
+#Sub-Category : Reset Semantics
+#lint on always_without_async_reset
+#lint on func_as_reset_condition
+#lint on latch_with_async_control
+#lint on reg_reset_value_disallowed
+#lint on reset_pragma_mismatch
+#lint on seq_block_first_stmt_not_if
+#lint on synopsys_reset_pragma
+#Category : Rtl Design Style
+#Sub-Category : Assign
+#lint on self_assign
+#Sub-Category : Case
+#lint on case_default_redundant
+lint report check -severity warning case_default_redundant
+#lint on case_default_value_not_x
+#lint on case_large
+#lint on case_select_has_expr
+#lint on case_small
+#Sub-Category : Delay
+#lint on delay_in_nonblocking_assign
+#lint on flop_without_delay
+#Sub-Category : Expression
+#lint on arith_expr_with_conditional_operator
+#lint on complex_expression
+#lint on div_mod_rhs_var
+#lint on exponent_negative
+#lint on multiplication_operator
+#lint on qualified_expression
+#Sub-Category : Fsm
+#lint on fsm_combo_seq_logic_mixed
+#lint on fsm_output_style_disallowed
+#lint on fsm_state_count_large
+#lint on fsm_state_value_hardcoded
+#lint on fsm_with_deadend_state
+#lint on fsm_with_unreachable_state
+#lint on fsm_without_one_hot_encoding
+#lint on fsm_without_reset_state
+#lint on state_name_not_unique
+#Sub-Category : Function
+#lint on func_arg_array_constrained
+#lint on func_input_unused
+#lint on func_return_range_mismatch
+#lint on func_task_static
+#lint on func_to_stdlogicvector
+#lint on subprogram_calling_subprogram
+#lint on subprogram_nested
+#lint on subprogram_unused
+#lint on subroutines_recursive_loop
+#Sub-Category : Gate
+#Sub-Category : Loop
+#lint on for_loop_bound_not_static
+#lint on for_loop_infinite
+#lint on for_loop_var_init_not_const
+#lint on for_loop_with_operation
+#lint on for_stmt_with_complex_logic
+#Sub-Category : Naming
+#lint on data_type_name_not_standard
+#lint on reserved_word_case_not_standard
+#lint on testbench_suffix_not_standard
+#Sub-Category : Port Connection
+#lint on object_class_not_specified
+#lint on parameter_not_specified
+#lint on port_count_large
+#lint on port_mode_not_specified
+#Sub-Category : Sensitivity List
+#Sub-Category : Task
+#Sub-Category : Unsynthesizable Construct
+#lint on loop_with_next_exit
+lint on unsynth_wand_wor_net
+lint report check -severity error unsynth_wand_wor_net
+#Sub-Category : Unsynthesizable Logic
+#lint on aggregate_assignment_mixed
+#lint on variable_width_slice_disallowed
+#Sub-Category : Usage
+#lint on ansi_style_declaration
+#lint on array_index_with_expr
+#lint on assigns_not_aligned
+#lint on bad_indentation
+#lint on base_type_not_specified
+#lint on bus_bits_not_read
+#lint on bus_bits_not_set
+#lint on compile_condition_nested_large
+#lint on compiler_directive_disallowed
+#lint on const_value_spacing_missing
+#lint on constant_literal
+#lint on constant_not_used
+#lint on cyclomatic_complexity_info
+#lint on decl_usage_case_inconsistent
+#lint on design_file_line_limit
+#lint on design_files_average_line_limit
+#lint on design_unit_name_similar
+#lint on design_unit_overwritten
+#lint on design_ware_inst 
+#lint on end_label_missing
+#lint on entity_architecture_different_file
+#lint on entity_inst
+#lint on enum_decl_invalid
+#lint on enum_decl_value_missing
+#lint on equality_operator_redundant
+#lint on file_reference_disallowed
+#lint on file_with_entity_and_package
+#lint on func_exceeds_line_limit
+#lint on gen_label_missing
+#lint on generate_block_unreachable
+#lint on genvar_unused
+#lint on hierarchical_levels_large
+#lint on if_else_nested_large
+#lint on implicit_wire
+#lint on include_file_construct_disallowed
+#lint on include_path_not_relative
+#lint on int_without_range
+#lint on library_disallowed
+#lint on library_package_unused
+#lint on line_with_multi_decls
+#lint on line_with_multi_stmts
+#lint on literal_base_type_disallowed
+#lint on logical_not_on_single_bit
+#lint on logical_operator_on_single_bit
+#lint on macro_defines_numeric_constant
+#lint on macro_disallowed
+#lint on macro_nested
+#lint on module_not_at_top
+#lint on multi_assign_in_same_line
+#lint on multi_seq_block_with_same_clk
+#lint on multi_wave_element
+#lint on net_decl_with_assign
+#lint on operator_overloaded
+#lint on package_disallowed
+#lint on package_exceeds_line_limit
+#lint on package_nested_large
+#lint on param_generic_count_large
+#lint on parameter_default_value_not_defined
+#lint on port_conn_open
+#lint on port_redefined
+#lint on power_operand_invalid
+#lint on procedure_call
+#lint on procedure_exceeds_line_limit
+#lint on record_type
+#lint on reg_rising_edge_or_falling_edge
+#lint on reg_type_disallowed
+#lint on regex_user_defined
+#lint on sensitivity_list_implicit_recommended
+#lint on seq_block_has_combo_logic
+#lint on seq_block_has_multi_if_case
+#lint on shift_register_inferred
+#lint on signal_range_without_parameter
+#lint on source_file_structure_disallowed
+#lint on space_missing
+#lint on stable_attribute
+#lint on start_label_missing
+#lint on std_package_missing
+#lint on structural_mod_with_non_inst_logic
+#lint on subprogram_disallowed
+#lint on subprogram_has_multi_returns
+#lint on tabs_disallowed
+#lint on tristate_inferred
+#lint on tristate_other_desc_mixed
+#lint on var_assign_in_process
+#lint on var_decl_outside_ifdef_scope
+#lint on var_set_not_read
+#lint on vector_lower_index_not_zero
+#lint on when_else_nested
+#Sub-Category : Width
+#lint on bus_width_not_specified
+#lint on div_mod_lhs_too_wide
+#lint on div_mod_rhs_too_wide
+#lint on func_to_integer_arg_width_overflow
+#lint on param_as_replication_multiplier
+#lint on parameter_width_not_specified
+#Category : Simulation
+#Sub-Category : Function
+#Sub-Category : Sensitivity List
+#lint on sensitivity_list_var_bit_unused
+#lint on sensitivity_list_var_unused
+#Sub-Category : Simulation And Synthesis Mismatch
+#lint on always_has_async_set_reset
+#lint on case_pragma_redundant
+#lint on for_loop_with_wait
+#lint on incomplete_case_stmt_with_full_case
+#lint on parameter_with_range
+#lint on process_has_async_set_reset
+#Sub-Category : Simulation Race
+#Category : Synthesis
+#Sub-Category : Unsynthesizable Construct
+#lint on loop_with_break_continue
+lint on unsynth_bidirectional_switch
+lint report check -severity error unsynth_bidirectional_switch
+lint on unsynth_charge_strength
+lint report check -severity error unsynth_charge_strength
+lint on unsynth_disable_stmt
+lint report check -severity error unsynth_disable_stmt
+lint on unsynth_event_var
+lint report check -severity error unsynth_event_var
+lint on unsynth_force_release
+lint report check -severity error unsynth_force_release
+lint on unsynth_fork_join_block
+lint report check -severity error unsynth_fork_join_block
+lint on unsynth_guarded_block_stmt
+lint report check -severity warning unsynth_guarded_block_stmt
+lint on unsynth_integer_array
+lint report check -severity error unsynth_integer_array
+lint on unsynth_pulldown
+lint report check -severity error unsynth_pulldown
+lint on unsynth_pullup
+lint report check -severity error unsynth_pulldown
+#lint on unsynth_repeat (deprecated)
+#lint report check -severity error unsynth_repeat (deprecated)
+lint on unsynth_time_var
+lint report check -severity error unsynth_time_var
+lint on unsynth_wait_stmt
+lint report check -severity error unsynth_wait_stmt
+#Sub-Category : Unsynthesizable Logic
+#lint on case_eq_operator
+lint on div_mod_rhs_invalid
+lint report check -severity error div_mod_rhs_invalid
+
+lint on unsynth_while_in_subprogram
+lint report check -severity error unsynth_while_in_subprogram
+#lint on unsynth_while_loop (deprecated)
+#lint report check -severity error unsynth_while_loop (deprecated)
+
+#====================================================================================================
+#Section 4  : Check Directives
+#Description: Specify directives to configure checks
+#====================================================================================================
+lint preference -report_explicit_flops_only -disallow_verilog_operators === !== 
+lint report check -severity info always_exceeds_line_limit
+lint report check -severity warning always_has_inconsistent_async_control
+lint report check -severity info always_signal_assign_large
+lint report check -severity warning assign_chain
+lint report check -severity warning assign_with_multi_arith_operations
+lint report check -severity info async_reset_active_high
+lint report check -severity info bit_order_reversed
+lint report check -severity warning blackbox_input_conn_inconsistent
+lint report check -severity warning blackbox_output_control_signal
+lint report check -severity warning bus_bit_as_clk
+lint report check -severity warning bus_bits_in_multi_seq_blocks
+lint report check -severity warning case_with_memory_output
+lint report check -severity error casex
+lint report check -severity info casez
+lint report check -severity warning clk_port_conn_complex
+lint report check -severity warning clock_in_wait_stmt
+lint report check -severity info comment_has_control_char
+
+lint report check -severity error condition_has_assign
+lint report check -severity info conditional_operator_nested
+lint report check -severity info conversion_to_stdlogicvector_invalid
+lint report check -severity warning data_event_has_edge
+lint report check -severity info data_type_std_ulogic
+lint report check -severity warning delay_has_x_z
+lint report check -severity info delay_in_non_flop_expr
+lint report check -severity error delay_without_timescale
+lint report check -severity warning div_mod_rem_operand_complex_expr
+lint report check -severity warning empty_module
+lint report check -severity warning enum_decl_info_missing
+lint report check -severity info flop_redundant
+lint report check -severity warning func_expr_input_size_mismatch
+lint report check -severity info func_nonblocking_assign
+lint report check -severity warning func_return_before_last_stmt
+lint report check -severity warning func_return_range_fixed
+lint report check -severity error gen_label_duplicate
+lint report check -severity info identifier_with_error_warning
+lint report check -severity info if_else_if_can_be_case
+lint report check -severity warning if_stmt_shares_arithmetic_operator
+lint report check -severity warning if_stmt_with_arith_expr
+lint report check -severity warning if_with_memory_output
+lint report check -severity warning inferred_blackbox
+lint report check -severity info inout_port_exists
+lint report check -severity warning inst_param_width_overflow
+lint report check -severity info line_char_large
+lint report check -severity warning long_combinational_path
+lint report check -severity warning loop_var_not_in_init
+lint report check -severity info loop_without_break
+lint report check -severity warning memory_not_set
+lint report check -severity warning memory_redefined
+
+lint report check -severity info parameter_count_large
+lint report check -severity error part_select_illegal
+lint report check -severity info port_conn_is_expression
+lint report check -severity warning pragma_coverage_off_nested
+lint report check -severity warning pragma_translate_off_nested
+lint report check -severity warning pragma_translate_on_nested
+lint report check -severity warning process_exceeds_line_limit
+lint report check -severity warning process_has_inconsistent_async_control
+lint report check -severity info process_signal_assign_large
+lint report check -severity warning process_var_assign_disorder
+lint report check -severity info re_entrant_output
+lint report check -severity warning reference_event_without_edge
+lint report check -severity warning reset_set_with_both_polarity
+lint report check -severity info selected_signal_stmt
+lint report check -severity error sensitivity_list_operator_unexpected
+lint report check -severity warning shared_variable_in_multi_process
+lint report check -severity warning signal_assign_in_multi_initial
+lint report check -severity warning signal_sync_async
+lint report check -severity warning signal_with_negative_value
+lint report check -severity error sim_synth_mismatch_assign_event
+lint report check -severity error sim_synth_mismatch_tristate_compare
+lint report check -severity warning string_has_control_char
+lint report check -severity warning sync_read_as_async
+lint report check -severity info synopsys_attribute
+lint report check -severity warning synth_pragma_prefix_missing
+lint report check -severity info task_has_event_and_input
+lint report check -severity info task_has_event_and_output
+lint report check -severity error timescales_differ
+lint report check -severity warning tristate_not_at_top_level
+lint report check -severity info two_state_data_type
+lint report check -severity info undriven_latch_data
+lint report check -severity info undriven_reg_data
+lint report check -severity info undriven_signal
+lint report check -severity warning unresolved_module
+lint report check -severity warning unsynth_dc_shell_script
+lint report check -severity info user_blackbox
+lint report check -severity warning var_assign_without_deassign
+lint report check -severity warning var_deassign_without_assign
+lint report check -severity error var_forced_without_release
+lint report check -severity warning var_read_before_set
+lint report check -severity error var_released_without_force
+lint report check -severity warning while_loop_iteration_limit
+
+#------------intel openchip rules--------------------
+lint on case_select_const
+lint report check -severity warning case_select_const
+lint on ansi_style_declaration
+lint report check -severity info ansi_style_declaration
+
+
+lint on unsynth_loop
+lint report check -severity error unsynth_loop
+lint on undriven_signal
+lint report check -severity warning undriven_signal
+lint on feedthrough_path 
+lint report check -severity warning feedthrough_path
+
+lint report check -severity warning combo_path_input_to_output
+lint on inst_param_width_overflow
+lint report check -severity warning inst_param_width_overflow
+
+
+lint on div_mod_rhs_zero
+lint report check -severity error div_mod_rhs_zero
+lint on reg_reset_value_disallowed
+lint report check -severity warning reg_reset_value_disallowed
+lint on module_with_duplicate_ports
+lint report check -severity error module_with_duplicate_ports
+lint on design_unit_overwritten
+lint report check -severity warning design_unit_overwritten
+lint on unsynth_arithmetic_operator
+lint report check -severity error unsynth_arithmetic_operator
+
+
+lint on unsynth_initial_value
+lint report check -severity error unsynth_initial_value
+lint on unsynth_assign_deassign
+lint report check -severity error unsynth_assign_deassign
+lint on unsynth_repeat_in_nonblocking_assign
+lint report check -severity error unsynth_repeat_in_nonblocking_assign
+# misc
+lint on reset_port_connection_static
+lint on concurrent_block_with_duplicate_assign
+lint on unsynth_block_stmt_header
+lint on pragma_disallowed
+lint on sensitivity_list_var_both_edges
+lint on clock_with_both_edges
+lint on interface_without_modport
+lint on generate_port_info
+lint on latch_inferred
+lint on combo_loop
+lint on combo_loop_with_latch
+lint on flop_clock_reset_loop
+lint on const_reg_clock
+lint on mux_select_const
+lint on unsynth_sensitivity_list_conditions
+lint on unsynth_drive_strength_gate
+lint on unsynth_drive_strength_assign
+lint on synth_pragma_prefix_invalid
+lint on synopsys_reset_pragma
+lint on var_read_not_set
+lint on unloaded_signal
+lint on unloaded_input_port
+lint on undriven_output_port
+lint on undriven_unloaded_signal
+#lint on const_latch_enable
+lint on undriven_latch_enable
+lint on port_conn_is_expression
+lint on ordered_port_connection
+lint on parameter_name_not_standard
+lint on signal_name_not_standard
+lint on port_name_not_standard
+lint on reg_name_not_standard
+lint on const_name_not_standard
+lint on sensitivity_list_signal_repeated
+lint on undriven_reg_clock
+lint on clock_enable_race
+lint on clock_signal_as_non_clock
+lint on if_missing_else
+lint on condition_const
+lint on module_with_null_port
+lint on parentheses_missing
+lint on signed_unsigned_mixed_expr
+lint on macro_name_not_standard
+lint on always_comb_recommended
+lint on always_ff_recommended
+lint on always_latch_recommended
+lint on flop_without_control
+lint on reset_set_non_const_assign
+lint on module_input_not_registered
+lint on module_output_not_registered
+lint on file_with_multi_modules
+lint on header_field_file_invalid
+lint on file_header_template_mismatch
+lint on header_missing
+lint on include_file_construct_disallowed
+lint on bus_conn_to_inst_reversed
+lint on bit_order_reversed
+lint on variable_width_slice_disallowed
+lint on var_index_range_insufficient
+lint on if_conditions_overlap
+lint on fsm_without_default_state
+lint on preceding_apostrophe_missing
+lint on assign_int_to_real
+lint on assign_int_to_reg
+lint on assign_real_to_bit
+lint on assign_real_to_int
+lint on assign_real_to_reg
+lint on assign_reg_to_int
+lint on assign_reg_to_real
+lint on always_without_event
+lint on async_block_top_stmt_not_if
+lint on seq_block_has_complex_cond
+lint on assign_width_overflow
+lint on data_type_bit_select_invalid
+lint on comparison_has_real_operand
+lint on unsynth_func_returns_real
+lint on assign_to_supply_net
+lint on loop_condition_const
+lint on case_item_duplicate
+lint on func_sets_global_var
+lint on procedure_sets_global_var
+lint on task_sets_global_var
+lint on func_uses_global_var
+lint on procedure_uses_global_var
+lint on task_uses_global_var
+lint on task_in_combo_block
+lint on assign_or_comparison_has_x
+lint on assign_or_comparison_has_z
+#lint on condition_has_implicit_x
+lint on loop_var_not_in_condition
+lint on loop_var_not_in_init
+lint on loop_step_incorrect
+lint on for_loop_infinite
+lint on tristate_enable_with_expr
+lint on case_condition_with_tristate
+lint on case_default_missing
+lint on expr_operands_width_mismatch
+lint on sensitivity_list_var_missing
+lint on const_value_width_size_mismatch
+lint on const_value_size_mismatch
+lint on sensitivity_list_edge_multi_bit
+lint on sensitivity_list_var_range
+lint on input_port_not_read
+lint on case_width_mismatch
+lint on case_with_x_z
+lint on casez_has_x
+lint on casex_has_z
+lint on unsynth_shift_operator
+lint on func_bit_not_set
+lint on sensitivity_list_var_modified
+lint on assigns_mixed
+lint on assigns_mixed_in_always_block
+lint on repeat_ctrl_not_const
+lint on blocking_assign_in_seq_block
+lint on nonblocking_assign_and_delay_in_always
+lint on nonblocking_assign_in_combo_block
+lint on multi_driven_signal
+lint on unconnected_inst_inout
+lint on unconnected_inst_output
+lint on unconnected_inst_input
+lint on unconnected_inst
+lint on condition_is_multi_bit
+lint on operator_disallowed
+lint on unsynth_initial_stmt
+lint on unsynth_delay_in_net_decl
+lint on unsynth_delay_in_stmt
+lint on unsynth_delay_in_bidirectional_switch
+lint on unsynth_delay_in_gate
+lint on unsynth_delay_in_cmos_switch
+lint on unsynth_delay_in_mos_switch
+lint on unsynth_delay_in_blocking_assign
+lint on unsynth_delay_in_tristate_gate
+lint on unsynth_real_var
+lint on unsynth_tri_net
+lint on unsynth_mos_switch
+lint on unsynth_pli_task_func
+lint on inout_port_not_set
+lint on var_unused
+lint on func_return_value_unspecified
+lint on output_port_not_set
+lint on inout_port_unused
+lint on var_name_duplicate
+lint on assign_width_underflow
+lint on comparison_width_mismatch
+lint on concat_expr_with_unsized_operand
+lint on empty_stmt
+lint on else_condition_dangling
+lint on empty_block
+lint on delay_var
+lint on input_port_set
+#lint on data_type_not_recommended
+lint on case_item_not_const
+lint on case_item_invalid
+lint on logical_operator_on_multi_bit
+lint on net_decl_with_assign
+lint on parameter_not_used
+lint on identifier_name_not_unique
+lint on macro_redefined
+lint on flop_async_reset_const
+lint on index_x_z 
+lint on unsynth_udp
+lint on logical_not_on_multi_bit
+lint on fsm_coding_style_disallowed
+lint on delay_negative
+lint on task_in_seq_block
+lint on func_input_width_mismatch
+lint on seq_block_has_duplicate_assign
+lint on reset_polarity_mismatch
+lint on if_condition_with_tristate
+lint on gate_instantiation
+lint on serial_latches_open_together
+lint on seq_block_has_multi_clks
+lint on unsynth_defparam
+lint on module_name_not_standard
+lint on udp_name_not_standard
+lint on task_name_not_standard 
+lint on func_name_not_standard
+lint on inst_name_not_standard 
+lint on label_name_not_standard
+lint on reserved_keyword
+lint on sensitivity_list_has_constant
+lint on always_has_multiple_events
+lint on literal_bit_width_not_specified
+lint on flop_with_inverted_clock
+lint on clock_gated
+lint on case_stmt_with_full_case
+lint on case_stmt_with_parallel_case
+lint on case_default_not_last_item
+lint on file_module_name_mismatch
+lint on always_has_nested_event_control
+lint on unsynth_specify_block
+lint on flop_output_in_initial
+lint on unsynth_assert_stmt
+lint on task_has_event
+lint on unsynth_hier_reference
+lint on latch_combo_mixed
+lint on unpacked_struct_or_union
+lint on always_has_multiple_async_control
+lint on reset_style_disallowed
+lint on loop_index_modified
+lint on loop_index_not_int
+lint on loop_index_in_multi_always_blocks
+lint on port_exp_with_integer
+lint on inst_port_width_mismatch
+lint on generic_name_not_standard
+lint on for_loop_iteration_limit
+lint on while_loop_iteration_limit
+lint on inst_port_net_type_mismatch
+lint on module_has_blackbox_instance
+#====
+# lint preference 
+
+lint preference -skip_case_dont_care
+lint preference -all_undriven_violations
+lint preference -ignore_file_suffix
+lint preference -ignore_file_prefix
+lint preference -ignore_var_subroutine_duplicate
+#lint preference -check case_default_missing -missing_others_or_default 
+lint preference -check operator_disallowed -disallow_verilog_operators !== === 
+lint preference -check assign_width_overflow -calc_width_using_expr_range 
+lint preference -check flop_with_inverted_clock -allow_clock_edge positive
+lint preference -check clock_signal_as_non_clock -report_all_non_clock_usages
+lint preference -check if_missing_else -report_conditional_gen_stmts
+lint preference -check signed_unsigned_mixed_expr -report_assign_mixed_expr
+#lint preference -check signed_unsigned_mixed_expr -report_const_mixed_expr
+#lint preference -check data_type_not_recommended -allow_non_port_data_types reg wire tri integer logic interface packed_array unpacked_array struct_union enum 
+#lint preference -check data_type_not_recommended -allow_port_data_types reg wire tri integer logic interface packed_array unpacked_array struct_union enum
+lint preference -check macro_disallowed -disallow_macros { *}
+lint preference -check module_input_not_registered -report_all_modules_inputs
+lint preference -check bit_order_reversed -array_order_recommended ascending
+lint preference -check unsynth_assert_stmt -disallowed_sv_assertion all
+lint preference -check reset_style_disallowed -disallow_reset_style async
+lint preference -check parentheses_missing -report_standard_styles
+lint preference -check identifier_name_not_unique -report_variables_only 
+lint preference -check identifier_name_not_unique -allow_loop_var_in_different_process
+lint preference -check parentheses_missing -ignore_one_operator_expressions
+lint preference -check assign_width_overflow -width_calculation_pessimistic 
+lint preference -check comparison_width_mismatch -width_calculation_pessimistic
+lint preference -check expr_operands_width_mismatch -width_calculation_pessimistic
+#lint preference -check flop_without_control -valid_flop_controls sync_reset
+lint preference -check seq_block_has_complex_cond -report_complex_reset_set_only
+lint preference -check unsynth_pli_task_func -allow_pli_task {display info warning error fatal}
+lint preference -check unsynth_real_var -report_used_reals_only
+lint preference -check assign_or_comparison_has_z -report_stmt_type comparison
+lint preference -check reserved_keyword -disable_given_categories VHDL
+#lint preference -check clock_with_both_edges ‑clock_with_both_edges_scope module  
+#lint preference -check module_output_not_registered -report_all_modules_outputs
+lint preference name -check module_name_not_standard -disallow_special_character -disallow_prefix 0 1 2 3 4 5 6 7 8 9
+lint preference name -check udp_name_not_standard -disallow_special_character -disallow_prefix 0 1 2 3 4 5 6 7 8 9
+lint preference name -check task_name_not_standard -disallow_special_character -disallow_prefix 0 1 2 3 4 5 6 7 8 9
+lint preference name -check func_name_not_standard -disallow_special_character -disallow_prefix 0 1 2 3 4 5 6 7 8 9
+lint preference name -check label_name_not_standard -disallow_special_character -disallow_prefix 0 1 2 3 4 5 6 7 8 9
+lint preference name -check generic_name_not_standard -disallow_lower_case -disallow_mix_case -disallow_consecutive_underscores -max_length 32 -disallow_prefix 0 1 2 3 4 5 6 7 8 9
+lint preference name -check parameter_name_not_standard -disallow_lower_case -disallow_mix_case -disallow_consecutive_underscores -max_length 32 -disallow_prefix 0 1 2 3 4 5 6 7 8 9
+lint preference name -check signal_name_not_standard -disallow_special_character -disallow_consecutive_underscores -max_length 32 -disallow_prefix 0 1 2 3 4 5 6 7 8 9
+lint preference name -check port_name_not_standard -disallow_special_character -disallow_consecutive_underscores -max_length 32 -disallow_prefix 0 1 2 3 4 5 6 7 8 9
+lint preference name -check reg_name_not_standard -disallow_special_character -disallow_consecutive_underscores -max_length 32 -disallow_prefix 0 1 2 3 4 5 6 7 8 9
+lint preference name -check const_name_not_standard -disallow_lower_case -disallow_mix_case -disallow_special_character -disallow_consecutive_underscores -max_length 8 -disallow_prefix 0 1 2 3 4 5 6 7 8 9
+#lint preference name -check macro_name_not_standard -disallow_prefix 
+
+lint preference limit -max_for_loop_iteration 2048
+lint preference limit -max_while_loop_iteration 2048
+lint preference limit -check literal_bit_width_not_specified -literal_width_unspecified 32
+
+lint preference comment -check header_field_file_invalid -file {//\s*File\s?:\s+.*}
+
+#===
+# report checks
+lint report check -severity warning unsynth_block_stmt_header
+lint report check -severity error sensitivity_list_var_both_edges
+lint report check -severity warning pragma_disallowed
+lint report check -severity error clock_with_both_edges
+lint report check -severity error interface_without_modport
+lint report check -severity info generate_port_info
+lint report check -severity error latch_inferred
+lint report check -severity error -alias CombLoop combo_loop 
+lint report check -severity error -alias CombLoop_RstClk flop_clock_reset_loop
+lint report check -severity warning -alias LatchFeedback combo_loop_with_latch
+lint report check -severity error const_reg_clock
+lint report check -severity error mux_select_const
+lint report check -severity error unsynth_drive_strength_gate
+lint report check -severity error unsynth_drive_strength_assign
+lint report check -severity warning synth_pragma_prefix_invalid
+lint report check -severity warning synopsys_reset_pragma
+lint report check -severity warning unloaded_signal
+lint report check -severity warning unloaded_input_port
+lint report check -severity error var_read_not_set
+lint report check -severity error undriven_output_port
+lint report check -severity warning undriven_unloaded_signal
+#lint report check -severity error const_latch_enable
+lint report check -severity error undriven_latch_enable
+lint report check -severity info port_conn_is_expression
+lint report check -severity error ordered_port_connection
+lint report check -severity warning parameter_name_not_standard
+lint report check -severity warning generic_name_not_standard
+lint report check -severity warning signal_name_not_standard
+lint report check -severity warning port_name_not_standard
+lint report check -severity warning reg_name_not_standard
+lint report check -severity warning const_name_not_standard
+lint report check -severity error sensitivity_list_signal_repeated
+lint report check -severity error undriven_reg_clock
+lint report check -severity warning clock_enable_race 
+lint report check -severity error if_missing_else
+lint report check -severity error condition_const
+lint report check -severity error module_with_null_port
+lint report check -severity error parentheses_missing 
+lint report check -severity error signed_unsigned_mixed_expr
+lint report check -severity error macro_name_not_standard
+lint report check -severity error always_comb_recommended
+lint report check -severity error always_ff_recommended
+lint report check -severity error always_latch_recommended
+lint report check -severity error flop_without_control
+lint report check -severity error reset_set_non_const_assign
+lint report check -severity warning module_input_not_registered
+lint report check -severity warning module_output_not_registered
+lint report check -severity error casez_has_x
+lint report check -severity error file_with_multi_modules
+lint report check -severity warning header_field_file_invalid
+lint report check -severity warning file_header_template_mismatch
+lint report check -severity warning header_missing
+lint report check -severity warning include_file_construct_disallowed
+lint report check -severity error bus_conn_to_inst_reversed
+lint report check -severity warning bit_order_reversed
+lint report check -severity error variable_width_slice_disallowed
+lint report check -severity warning var_index_range_insufficient 
+lint report check -severity error if_conditions_overlap 
+lint report check -severity warning fsm_without_default_state 
+lint report check -severity error preceding_apostrophe_missing 
+lint report check -severity error assign_int_to_real
+lint report check -severity error assign_int_to_reg
+lint report check -severity error assign_real_to_bit
+lint report check -severity error assign_real_to_int
+lint report check -severity error assign_real_to_reg
+lint report check -severity error assign_reg_to_int
+lint report check -severity error assign_reg_to_real
+lint report check -severity error always_without_event
+lint report check -severity error async_block_top_stmt_not_if
+lint report check -severity error seq_block_has_complex_cond
+lint report check -severity error assign_width_overflow
+lint report check -severity error data_type_bit_select_invalid
+lint report check -severity error comparison_has_real_operand
+lint report check -severity error unsynth_func_returns_real
+lint report check -severity error assign_to_supply_net
+lint report check -severity error loop_condition_const
+lint report check -severity error case_item_duplicate
+lint report check -severity warning unsynth_sensitivity_list_conditions
+lint report check -severity error func_sets_global_var
+lint report check -severity error procedure_sets_global_var
+lint report check -severity error task_sets_global_var
+lint report check -severity error func_uses_global_var
+lint report check -severity error procedure_uses_global_var
+lint report check -severity error task_uses_global_var
+lint report check -severity error task_in_combo_block
+lint report check -severity error -alias STARC2.10.1.4 assign_or_comparison_has_x
+lint report check -severity error -alias STARC2.10.1.4 assign_or_comparison_has_z
+lint report check -severity error condition_has_implicit_x
+lint report check -severity error -alias W481a loop_var_not_in_condition
+lint report check -severity error -alias W481b loop_var_not_in_init
+lint report check -severity error -alias W479 loop_step_incorrect
+lint report check -severity error -alias infiniteloop for_loop_infinite
+lint report check -severity error -alias STARC05-2.5.1.2 tristate_enable_with_expr 
+lint report check -severity error case_default_missing
+lint report check -severity error expr_operands_width_mismatch
+lint report check -severity error comparison_width_mismatch
+lint report check -severity error sensitivity_list_var_missing
+lint report check -severity error -alias STARC05-2.10.3.7 const_value_size_mismatch 
+lint report check -severity error sensitivity_list_edge_multi_bit
+lint report check -severity error sensitivity_list_var_range
+lint report check -severity warning input_port_not_read
+lint report check -severity error case_width_mismatch
+lint report check -severity error casex_has_z
+lint report check -severity error unsynth_shift_operator
+lint report check -severity error func_bit_not_set
+lint report check -severity error sensitivity_list_var_modified
+lint report check -severity error assigns_mixed
+lint report check -severity error assigns_mixed_in_always_block
+lint report check -severity error repeat_ctrl_not_const
+lint report check -severity error blocking_assign_in_seq_block
+lint report check -severity error nonblocking_assign_and_delay_in_always
+lint report check -severity error -alias STARC05-2.2.3.1 nonblocking_assign_in_combo_block
+lint report check -severity error  multi_driven_signal 
+lint report check -severity warning unconnected_inst_output
+lint report check -severity warning unconnected_inst_inout
+lint report check -severity warning unconnected_inst_input 
+lint report check -severity error condition_is_multi_bit
+lint report check -severity error operator_disallowed
+lint report check -severity warning unsynth_initial_stmt
+lint report check -severity error unsynth_delay_in_net_decl
+lint report check -severity error unsynth_delay_in_stmt
+lint report check -severity error unsynth_delay_in_bidirectional_switch
+lint report check -severity error unsynth_delay_in_gate
+lint report check -severity error unsynth_delay_in_cmos_switch
+lint report check -severity error unsynth_delay_in_mos_switch
+lint report check -severity error unsynth_delay_in_blocking_assign
+lint report check -severity error unsynth_delay_in_tristate_gate
+lint report check -severity error unsynth_real_var
+lint report check -severity error unsynth_tri_net
+lint report check -severity error unsynth_mos_switch
+lint report check -severity error unsynth_pli_task_func
+lint report check -severity warning inout_port_not_set
+lint report check -severity warning var_unused
+lint report check -severity warning output_port_not_set
+lint report check -severity warning inout_port_unused
+lint report check -severity error var_name_duplicate
+lint report check -severity error assign_width_underflow
+lint report check -severity error concat_expr_with_unsized_operand
+lint report check -severity error empty_stmt
+lint report check -severity warning else_condition_dangling
+lint report check -severity warning empty_block
+lint report check -severity error delay_var
+lint report check -severity error input_port_set
+#lint report check -severity error data_type_not_recommended
+lint report check -severity warning case_item_not_const
+lint report check -severity warning case_item_invalid
+lint report check -severity error -alias STARC05-2.1.4.5 logical_operator_on_multi_bit 
+lint report check -severity error net_decl_with_assign
+lint report check -severity warning parameter_not_used
+lint report check -severity error identifier_name_not_unique
+lint report check -severity warning macro_redefined
+lint report check -severity info unconnected_inst
+lint report check -alias STARC05-2.3.1.2c -severity error unsynth_udp
+lint report check -severity error -alias STARC05-2.1.6.5 index_x_z
+lint report check -severity error -alias STARC05-2.10.2.3 logical_not_on_multi_bit 
+lint report check -severity warning -alias STARC05-2.11.3.1 fsm_coding_style_disallowed
+lint report check -severity error -alias STARC05-2.3.1.b delay_negative
+lint report check -severity error -alias STARC05-2.1.2.4 task_in_seq_block  
+lint report check -severity error -alias STARC05-2.1.3.1 func_input_width_mismatch  
+lint report check -severity error -alias STARC05-2.2.3.3 seq_block_has_duplicate_assign 
+lint report check -severity error -alias STARC05-2.3.1.6 reset_polarity_mismatch 
+lint report check -severity error -alias STARC05-2.5.1.7 if_condition_with_tristate
+lint report check -severity error -alias STARC05-2.5.1.9 case_condition_with_tristate
+lint report check -severity error -alias STARC05-1.2.1.2 gate_instantiation
+lint report check -severity error -alias STARC05-1.4.3.4 clock_signal_as_non_clock 
+lint report check -severity error -alias STARC05-2.4.1.5 serial_latches_open_together 
+lint report check -severity error seq_block_has_multi_clks
+lint report check -severity error unsynth_defparam
+lint report check -severity warning func_name_not_standard 
+lint report check -severity warning inst_name_not_standard 
+lint report check -severity warning label_name_not_standard 
+lint report check -severity warning module_name_not_standard
+lint report check -severity warning task_name_not_standard 
+lint report check -severity warning udp_name_not_standard 
+lint report check -severity error -alias STARC05-1.1.1.3 reserved_keyword  
+lint report check -severity error -alias STARC05-2.2.2.2b sensitivity_list_has_constant 
+lint report check -severity error -alias STARC05-2.2.2.3a always_has_multiple_events  
+lint report check -severity error -alias STARC05-2.10.3.6 literal_bit_width_not_specified  
+lint report check -severity warning -alias STARC05-1.4.3.1a flop_with_inverted_clock 
+lint report check -severity warning -alias STARC05-1.4.3.1.b clock_gated
+lint report check -severity error -alias STARC05-2.8.1.5 case_stmt_with_full_case 
+lint report check -severity error -alias STARC05-2.8.5.1 case_stmt_with_parallel_case
+lint report check -severity warning -alias STARC05-2.8.3.5 case_default_not_last_item  
+lint report check -severity error -alias STARC05-1.1.1.1 file_module_name_mismatch
+lint report check -severity error always_has_nested_event_control
+lint report check -severity error unsynth_specify_block
+lint report check -severity warning flop_output_in_initial
+lint report check -severity warning unsynth_assert_stmt
+lint report check -severity error task_has_event
+lint report check -severity error unsynth_hier_reference
+lint report check -severity error latch_combo_mixed
+lint report check -severity error unpacked_struct_or_union
+lint report check -severity error always_has_multiple_async_control
+lint report check -severity info reset_style_disallowed
+lint report check -severity info loop_index_modified
+lint report check -severity info loop_index_not_int
+lint report check -severity warning loop_index_in_multi_always_blocks
+lint report check -severity error port_exp_with_integer
+lint report check -severity error inst_port_width_mismatch 
+lint report check -severity warning for_loop_iteration_limit
+lint report check -severity warning while_loop_iteration_limit
+lint report check -severity error flop_async_reset_const
+lint report check -severity error case_with_x_z
+lint report check -severity error func_return_value_unspecified
+lint report check -severity error concurrent_block_with_duplicate_assign
+lint report check -severity error -alias FlopSRConst reset_port_connection_static
+lint report check -severity error inst_port_net_type_mismatch
+lint report check -severity warning module_has_blackbox_instance
+lint on case_with_memory_output
+lint report check -severity warning case_with_memory_output 
+
