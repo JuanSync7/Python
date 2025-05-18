@@ -1,0 +1,107 @@
+#------------------------------------------------------------------------------- 
+# Project      : Lint Flow
+# Author       : Kok Shew Juan
+#------------------------------------------------------------------------------- 
+# Copyright (C) <year>, OpenChip & Software Technologies S.L. All rights reserved. 
+# 
+# This file contains proprietary information of OpenChip and is protected by 
+# intellectual property laws. Unauthorized use, reproduction, or distribution 
+# of this file or its contents is strictly prohibited without written consent 
+# from OpenChip. 
+#------------------------------------------------------------------------------- 
+# Description  : This is a template of compile_cmd for verilog to be supplied to the vlog command
+# 
+
+# vlog command is at: file:///ln/appserver/SIEMENS/QUESTA/QOSF/2024.2_2_QOSF_linux64/INSTALLED/questa_static_formal/linux_x86_64/doc/htmldocs/mgchelp.htm#context=questa_sim_ref&id=387&tag=id6ce6948b-9797-4c41-a3f7-83f74066bca3
+
+# Write the log to file. Use; -l {file}
+# Example: -l compile_vl.log
+-l compile_vl.log
+
+# File extensions to use when searching for library files. Use: libext{+extension}…
+# Example : libext+.sv
++libext+.sv
++libext+.v
++libext+.svh
+
+# add pragma prefix
+-addpragmaprefix lint_check
+
+# Input include directory. If DesignWare functions are to be compiled, specify the path of the directory where the functions are stored. Use: +incdir+include_dir
+# Example: +incdir+$PRJ_ROOT/src/constants/
+
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Lsu/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Cpu/rtl/sv/  
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/shared/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Pcl/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Ccb/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Chp/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Cic/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Cpl/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Cpud/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Cpui/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Dec/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Fxu/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Gpc/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Icp/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Ill/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Ini/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Ixu/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Ixu/rtl/sv/test/
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/L2m/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/L3m/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/lib/rtl/sv/vvl/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/O3i/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Pru/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Twe/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Vxu/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Afe/rtl/sv/ 
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Ifu/rtl/sv/
++incdir+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Qci/rtl/sv/
+
+# To define macros, use: +define+<macro_name1>=<macro_text>+<macro_name2>=<macro_text>
+# Exmaple: +define+DATA_WIDTH=32
+
+# Directory containing library files. use: -y {library_dir}
+# Example: -y {PRJ_ROOT}/src/sv/
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Lsu/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Cpu/rtl/sv/  
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/shared/rtl/sv/
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/shared/rtl/sv/Rbm/
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Pcl/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Ccb/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Chp/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Cic/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Cpl/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Cpud/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Cpui/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Dec/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Fxu/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Gpc/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Icp/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Ill/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Ini/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Ixu/rtl/sv/
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Ixu/rtl/sv/test/
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Ifu/rtl/sv/
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/L2m/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/L3m/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/lib/rtl/sv/vvl/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/O3i/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Pru/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Twe/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Vxu/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Afe/rtl/sv/ 
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Qci/rtl/sv/
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/shared/rtl/sv
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/shared/rtl/sv/ts/moortec_tsmc_4nm/
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/shared/rtl/sv/memory/abstract/
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/shared/rtl/sv/cells/abstract/
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/shared/rtl/sv/droop/tsmc_4nm/
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/shared/rtl/sv/memory/OcWrappers/
+-y /ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/shared/rtl/sv/memory/Intel18A/
+
+# Top module 
+/ln/proj/va_10/a0/workareas/z2jkok/pcl/design/units/Pcl/rtl/sv/VtPcl.sv
+
+
